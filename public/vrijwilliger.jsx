@@ -10,16 +10,40 @@ const VOL_ROLES = [
   'Iets anders',
 ];
 
+const VOLUNTEER_API = 'https://public.radioscorpio.be/api/volunteer/submit';
+
 function Vrijwilliger({ setRoute }) {
   const [form, setForm] = React.useState({ name: '', email: '', role: VOL_ROLES[0], msg: '' });
   const [sent, setSent] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [sentName, setSentName] = React.useState('');
+  const [sentRole, setSentRole] = React.useState('');
+  const [sentEmail, setSentEmail] = React.useState('');
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    // Prototype: no backend yet — surface a confirmation state.
-    // Hook this to your form handler / email service when live.
-    setSent(true);
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch(VOLUNTEER_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: form.name, email: form.email, interest: form.role, message: form.msg }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Versturen mislukt');
+      setSentName(form.name);
+      setSentRole(form.role);
+      setSentEmail(form.email);
+      setForm({ name: '', email: '', role: VOL_ROLES[0], msg: '' });
+      setSent(true);
+    } catch (err) {
+      setError(err.message || 'Er is iets misgegaan. Probeer opnieuw.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -81,20 +105,20 @@ function Vrijwilliger({ setRoute }) {
             {sent ? (
               <div className="vr-sent">
                 <div className="vr-sent-mark">✓</div>
-                <h3>Bedankt, {form.name.split(' ')[0] || 'collega'}!</h3>
+                <h3>Bedankt, {sentName.split(' ')[0] || 'collega'}!</h3>
                 <p>
-                  We hebben je inschrijving voor <b>{form.role}</b> ontvangen.
+                  We hebben je inschrijving voor <b>{sentRole}</b> ontvangen.
                   De programmatieraad neemt zo snel mogelijk contact op via{' '}
-                  <b>{form.email || 'je e-mail'}</b>.
+                  <b>{sentEmail}</b>.
                 </p>
-                <button className="play-cta" onClick={() => { setSent(false); setForm({ name:'', email:'', role: VOL_ROLES[0], msg:'' }); }}>
+                <button className="play-cta filled" onClick={() => setSent(false)}>
                   <span className="ico"><Ic.arrow/></span>
                   Nog iemand inschrijven
                 </button>
               </div>
             ) : (
               <form className="vr-form" onSubmit={submit}>
-                <div className="eyebrow" style={{color:'var(--accent)', marginBottom:18}}>// Schrijf je in</div>
+                <div className="eyebrow" style={{color:'var(--ink)', marginBottom:18}}>// Schrijf je in</div>
                 <label className="vr-field">
                   <span>Naam</span>
                   <input type="text" required value={form.name} onChange={set('name')} placeholder="Voor- en achternaam"/>
@@ -111,10 +135,11 @@ function Vrijwilliger({ setRoute }) {
                 </label>
                 <label className="vr-field">
                   <span>Bericht</span>
-                  <textarea rows="4" value={form.msg} onChange={set('msg')} placeholder="Vertel kort iets over jezelf (optioneel)"/>
+                  <textarea rows="4" required value={form.msg} onChange={set('msg')} placeholder="Vertel kort iets over jezelf"/>
                 </label>
-                <button type="submit" className="vr-submit">
-                  Verstuur inschrijving <Ic.arrow/>
+                {error && <p style={{color:'#c0392b', fontSize:13, margin:'0 0 12px'}}>{error}</p>}
+                <button type="submit" className="vr-submit" disabled={submitting}>
+                  {submitting ? 'Versturen…' : <>Verstuur inschrijving <Ic.arrow/></>}
                 </button>
                 <p className="vr-form-foot">
                   Liever mailen? <a href="mailto:programmatieraad@radioscorpio.be">programmatieraad@radioscorpio.be</a>

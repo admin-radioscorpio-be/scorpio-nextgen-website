@@ -33,6 +33,28 @@ function TopNav({ route, navigate }) {
     ['ondemand', 'On demand'],
     ['alijst', 'A-Lijst'],
   ];
+
+
+  const [searchOpen, setSearchOpen] = React.useState(false);
+  const [q, setQ] = React.useState('');
+  const inputRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (searchOpen && inputRef.current) inputRef.current.focus();
+  }, [searchOpen]);
+
+  const submitTerm = () => {
+    const term = q.trim();
+    if (!term) { inputRef.current && inputRef.current.focus(); return; }
+    navigate('search', term);
+  };
+  const onSubmit = (e) => { e.preventDefault(); submitTerm(); };
+  const onIcon = () => {
+    if (!searchOpen) { setSearchOpen(true); return; }
+    if (q.trim()) submitTerm();
+    else setSearchOpen(false);
+  };
+
   return (
     <header className="topnav">
       <div className="inner">
@@ -48,7 +70,20 @@ function TopNav({ route, navigate }) {
           ))}
         </nav>
         <div className="util">
-          <button className="ic" aria-label="Zoeken"><Ic.search/></button>
+          <form className={"nav-search" + (searchOpen ? ' is-open' : '')}
+                role="search" onSubmit={onSubmit}>
+            <input ref={inputRef} className="nav-search-input" type="text"
+                   placeholder="Artiest, track, show…"
+                   value={q}
+                   onChange={e => setQ(e.target.value)}
+                   onKeyDown={e => { if (e.key === 'Escape') setSearchOpen(false); }}
+                   tabIndex={searchOpen ? 0 : -1}
+                   aria-hidden={!searchOpen}/>
+            <button type="button"
+                    className={"ic nav-search-btn" + (searchOpen ? ' is-active' : '')}
+                    aria-label={searchOpen ? 'Zoek' : 'Zoeken openen'}
+                    onClick={onIcon}><Ic.search/></button>
+          </form>
           <button className="ic" aria-label="Delen" onClick={() => shareUrl(window.location.href)}><Ic.share/></button>
           <a href="/_emdash/api/auth/oauth/google" className="ic" aria-label="Inloggen"><Ic.user/></a>
         </div>
@@ -382,7 +417,7 @@ function Footer() {
         </div>
         <div className="bot">
           <span>© 1980—2026 Radio Scorpio VZW · Leuven</span>
-          <span>Privacy · Cookies · Colofon</span>
+          <span>Privacy</span>
         </div>
       </div>
     </div>

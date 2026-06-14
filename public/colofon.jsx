@@ -79,7 +79,7 @@ function Colofon({ setRoute }) {
         {/* CONTACT ───────────────────────────────────────── */}
         <div id="colofon-contact" className="cf-contact">
           <div className="cf-contact-hd">
-            <div className="eyebrow" style={{color:'var(--accent)'}}>// Contactgegevens</div>
+            <div className="eyebrow" style={{color:'var(--ink)'}}>// Contactgegevens</div>
             <h2>Vind ons.</h2>
           </div>
 

@@ -313,7 +313,7 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
               We zoeken doorlopend nieuwe stemmen voor onze antenne. Niet de juiste
               stem? Mixen, monteren, opnemen, schrijven — er is altijd plek.
             </p>
-            <button className="play-cta" style={{borderColor:'var(--accent)'}}>
+            <button className="play-cta" style={{borderColor:'var(--accent)'}} onClick={() => navigate('vrijwilliger')}>
               <span className="ico"><Ic.arrow/></span>
               Schrijf je in
             </button>
