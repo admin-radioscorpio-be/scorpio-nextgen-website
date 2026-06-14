@@ -22,6 +22,9 @@ const Ic = {
   arrow:  (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M2 8 L13 8 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"/></svg>,
   share:  (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><circle cx="4" cy="8" r="2" fill="none" stroke="currentColor" strokeWidth="1.4"/><circle cx="12" cy="3" r="2" fill="none" stroke="currentColor" strokeWidth="1.4"/><circle cx="12" cy="13" r="2" fill="none" stroke="currentColor" strokeWidth="1.4"/><path d="M5.7 7 L10.3 4 M5.7 9 L10.3 12" stroke="currentColor" strokeWidth="1.4"/></svg>,
   heart:  (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M8 14 C8 14 1 9.5 1 5 C1 2.5 3 1 5 1 C6.5 1 8 2 8 4 C8 2 9.5 1 11 1 C13 1 15 2.5 15 5 C15 9.5 8 14 8 14 Z" fill="none" stroke="currentColor" strokeWidth="1.5"/></svg>,
+  menu:   (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M2 4 H14 M2 8 H14 M2 12 H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"/></svg>,
+  close:  (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M3 3 L13 13 M13 3 L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"/></svg>,
+
 };
 
 // ─── Top nav ──────────────────────────────────────────────────────────
@@ -38,10 +41,35 @@ function TopNav({ route, navigate }) {
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [q, setQ] = React.useState('');
   const inputRef = React.useRef(null);
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const menuRef = React.useRef(null);
+
 
   React.useEffect(() => {
     if (searchOpen && inputRef.current) inputRef.current.focus();
   }, [searchOpen]);
+
+
+  // close the overflow menu on outside click / Escape
+  React.useEffect(() => {
+    if (!menuOpen) return;
+    const onDown = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [menuOpen]);
+
+  // overflow links — the pages that don't live in the main nav
+  const goMenu = (r) => { setMenuOpen(false); navigate(r); };
+  const overflow = [
+    ['Wie zijn we',       () => goMenu('wiezijnwij')],
+    ['Word vrijwilliger', () => goMenu('vrijwilliger')],
+    ['Steun ons',         () => goMenu('steun')],
+    ["Logo's & pers",     () => goMenu('logos')],
+    ['Contact',           () => goMenu('colofon')],
+  ];
+
 
   const submitTerm = () => {
     const term = q.trim();
@@ -70,6 +98,22 @@ function TopNav({ route, navigate }) {
           ))}
         </nav>
         <div className="util">
+           <div className="nav-menu" ref={menuRef}>
+            <button className={"ic" + (menuOpen ? ' is-active' : '')}
+                    aria-label={menuOpen ? 'Menu sluiten' : 'Meer'}
+                    aria-expanded={menuOpen}
+                    onClick={() => setMenuOpen(o => !o)}>
+              {menuOpen ? <Ic.close/> : <Ic.menu/>}
+            </button>
+            {menuOpen && (
+              <div className="nav-menu-pop" role="menu">
+                <div className="nav-menu-cap">Meer</div>
+                {overflow.map(([lbl, fn]) => (
+                  <a key={lbl} role="menuitem" onClick={fn}>{lbl}<span className="nav-menu-arr">→</span></a>
+                ))}
+              </div>
+            )}
+          </div>
           <form className={"nav-search" + (searchOpen ? ' is-open' : '')}
                 role="search" onSubmit={onSubmit}>
             <input ref={inputRef} className="nav-search-input" type="text"
@@ -400,7 +444,8 @@ function Footer() {
           <div>
             <h4>Over</h4>
             <ul>
-              <li><a href="#/colofon" style={{cursor:'pointer'}}>Over ons</a></li>
+              <li><a href="#/wiezijnwij" style={{cursor:'pointer'}}>Wie zijn wij</a></li>
+              <li><a href="#/colofon" style={{cursor:'pointer'}}>Contact</a></li>
               <li><a href="#/vrijwilliger" style={{cursor:'pointer'}}>Word vrijwilliger</a></li>
               <li><a href="#/steun" style={{cursor:'pointer'}}>Steun</a></li>
               <li><a href="#/logos" style={{cursor:'pointer'}}>Logo's</a></li>

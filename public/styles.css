@@ -136,6 +136,51 @@ img { display: block; max-width: 100%; }
   border: var(--hair) solid var(--ink);
 }
 .topnav .util .ic:hover { background: var(--ink); color: var(--paper); }
+.topnav .util .ic.is-active { background: var(--ink); color: var(--paper); }
+
+/* OVERFLOW MENU ------------------------------------------------------- */
+.nav-menu { position: relative; display: flex; }
+.nav-menu-pop {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 60;
+  min-width: 220px;
+  background: var(--paper);
+  border: var(--hair) solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  padding: 6px;
+  animation: nav-menu-in 120ms ease;
+}
+@keyframes nav-menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.nav-menu-cap {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  padding: 7px 10px 9px;
+}
+.nav-menu-pop a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 10px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  cursor: pointer;
+  border: var(--hair) solid transparent;
+}
+.nav-menu-pop a:hover { background: var(--ink); color: var(--paper); }
+.nav-menu-arr { opacity: 0.45; }
+.nav-menu-pop a:hover .nav-menu-arr { opacity: 1; }
+
 
 /* TICKER -------------------------------------------------------------- */
 

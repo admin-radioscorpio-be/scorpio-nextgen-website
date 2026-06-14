@@ -1,7 +1,6 @@
 // shop.jsx — Steun ons: t-shirt shop teaser → externe webshop
 
-// TODO: replace with the real spreadsheet/webshop URL
-const SHOP_URL = 'https://radioscorpio.be/shop';
+const SHOP_URL = 'https://radioscorpio.myspreadshop.be';
 
 const SHOP_ITEMS = [
   { id: 'tee-black', name: 'Logo-tee — zwart op zwart', note: 'Gedrukt in Leuven' },
