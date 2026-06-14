@@ -28,6 +28,8 @@ function parseMeta(raw) {
 
 function groupResults(results) {
   const shows = [];
+  const alijstEditions = [];
+  const alijstTracks = [];
   const episodeTracks = [];
   const ptMap = new Map();
 
@@ -35,6 +37,11 @@ function groupResults(results) {
     const meta = parseMeta(r.display_meta);
     if (r.type === 'show') {
       shows.push({ ...r, meta });
+    } else if (r.type === 'alijst') {
+      alijstEditions.push({ ...r, meta });
+    } else if (r.type === 'alijst_track') {
+      const { artist, track } = splitTitle(r.title);
+      alijstTracks.push({ ...r, meta, artist, track });
     } else if (r.type === 'episode_track') {
       const { artist, track } = splitTitle(r.title);
       episodeTracks.push({ ...r, meta, artist, track });
@@ -53,7 +60,7 @@ function groupResults(results) {
     }
   });
 
-  return { shows, episodeTracks, playlistTracks: [...ptMap.values()] };
+  return { shows, alijstEditions, alijstTracks, episodeTracks, playlistTracks: [...ptMap.values()] };
 }
 
 // ─── term highlighting ─────────────────────────────────────────────────
@@ -116,6 +123,29 @@ function Search({ navigate, hashParam }) {
       ),
     },
     {
+      key: 'alijst', label: 'A-Lijst edities', items: grouped.alijstEditions,
+      row: it => (
+        <SrchRow key={'al' + it.source_id}
+                 mark={srchMonogram(it.title)}
+                 primary={hlt(it.title, terms)}
+                 ctx={it.meta.month || ''}
+                 jump="Open editie"
+                 onClick={() => navigate('alijst')}/>
+      ),
+    },
+    {
+      key: 'alijst_track', label: 'A-Lijst tracks', items: grouped.alijstTracks,
+      row: it => (
+        <SrchRow key={'at' + it.source_id}
+                 mark={<Ic.play/>}
+                 primary={hlt(it.artist, terms)}
+                 secondary={hlt(it.track, terms)}
+                 ctx={it.meta.month || ''}
+                 jump="Naar A-Lijst"
+                 onClick={() => navigate('alijst')}/>
+      ),
+    },
+    {
       key: 'episode_track', label: 'Aflevering-tracks', sub: 'Scorpio OD', items: grouped.episodeTracks,
       row: it => (
         <SrchRow key={'et' + it.source_id}
@@ -142,7 +172,7 @@ function Search({ navigate, hashParam }) {
   ] : [];
 
   const total = grouped
-    ? grouped.shows.length + grouped.episodeTracks.length + grouped.playlistTracks.length
+    ? grouped.shows.length + grouped.alijstEditions.length + grouped.alijstTracks.length + grouped.episodeTracks.length + grouped.playlistTracks.length
     : 0;
   const live = groups.filter(g => g.items.length);
 
