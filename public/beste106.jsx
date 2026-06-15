@@ -49,8 +49,6 @@ function Beste106({ setRoute, navTarget }) {
     const inner = (
       <>
         <div className={"al-cover-art " + tones[n % 3]}>
-          <div className="tex"/>
-          <div className="gnum">{String(c.rank).padStart(2, '0')}</div>
           <span className="tag">#{String(c.rank).padStart(3, '0')} · Album van het jaar</span>
           <span className="ph">[ Hoes ]</span>
         </div>
@@ -155,11 +153,6 @@ function Beste106({ setRoute, navTarget }) {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* BOTTOM COVERS ──────────────────────────────────── */}
-        <div className="al-covers" style={{marginTop:0, borderTop:'1px solid var(--rule)'}} data-screen-label="Beste 106 — Meer uit de top">
-          {botCovers.map((c, i) => Cover(c, i, 3))}
         </div>
 
         {/* ARCHIVE ────────────────────────────────────────── */}
