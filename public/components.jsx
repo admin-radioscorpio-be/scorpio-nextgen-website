@@ -151,7 +151,8 @@ function TopNav({ route, navigate }) {
                     onClick={onIcon}><Ic.search/></button>
           </form>
           <button className="ic" aria-label="Delen" onClick={() => shareUrl(window.location.href)}><Ic.share/></button>
-          <a href="/_emdash/api/auth/oauth/google" className="ic" aria-label="Inloggen"><Ic.user/></a>
+          {/* login icon hidden until CMS auth is enabled */}
+          {false && <a href="/_emdash/api/auth/oauth/google" className="ic" aria-label="Inloggen"><Ic.user/></a>}
           <span className="nav-sep" aria-hidden="true"></span>
           <div className="nav-social">
             {SOCIALS.map(([label, icon, url]) => {
