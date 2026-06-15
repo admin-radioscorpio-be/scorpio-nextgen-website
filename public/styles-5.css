@@ -181,7 +181,6 @@ img { display: block; max-width: 100%; }
 .nav-menu-arr { opacity: 0.45; }
 .nav-menu-pop a:hover .nav-menu-arr { opacity: 1; }
 
-
 /* TICKER -------------------------------------------------------------- */
 
 .ticker {
@@ -260,14 +259,6 @@ img { display: block; max-width: 100%; }
 .hero .meta > div b { color: var(--paper); display: block; font-weight: 500; }
 .hero .meta > div span { display: block; margin-top: 4px; font-size: 11px;}
 
-.hero .scorpion {
-  position: absolute;
-  right: -40px; top: -20px;
-  width: 380px; opacity: 0.08;
-  filter: invert(1);
-  transform: rotate(-12deg);
-  pointer-events: none;
-}
 
 
 /* PLAY BUTTON -------------------------------------------------------- */
@@ -293,10 +284,6 @@ img { display: block; max-width: 100%; }
 
 .play-cta.big { padding: 22px 28px 22px 22px; font-size: 16px; }
 .play-cta.big .ico { width: 56px; height: 56px; }
-.play-cta.filled { background: var(--accent); color: var(--ink); border-color: var(--accent); }
-.play-cta.filled .ico { background: var(--ink); color: var(--accent); }
-.play-cta.filled:hover { background: var(--ink); color: var(--accent); border-color: var(--ink); }
-.play-cta.filled:hover .ico { background: var(--accent); color: var(--ink); }
 
 /* SECTION HEADERS ---------------------------------------------------- */
 
@@ -704,8 +691,10 @@ img { display: block; max-width: 100%; }
 .foot .grid ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .foot .grid ul a {
   font-family: "Archivo", sans-serif; font-weight: 500; font-size: 14px;
+  cursor: pointer;
 }
 .foot .grid ul a:hover { color: var(--accent); }
+.foot .bot a:hover { color: var(--accent); }
 .foot .brand-cell img { height: 32px; filter: invert(1); margin-bottom: 16px; }
 .foot .brand-cell p { font-size: 13px; color: rgba(244,242,236,0.6); max-width: 320px; line-height: 1.5; }
 
@@ -846,19 +835,6 @@ img { display: block; max-width: 100%; }
 }
 .pl-tools .filter-grp button:last-child { border-right: 0; }
 .pl-tools .filter-grp button.is-active { background: var(--ink); color: var(--accent); }
-.pl-tools .filter-grp input[type="date"],
-.pl-tools .filter-grp select {
-  padding: 10px 14px;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-  font-weight: 600;
-  border-right: var(--hair) solid var(--ink);
-  background: transparent; color: var(--ink);
-  appearance: none; -webkit-appearance: none;
-  cursor: pointer;
-}
-.pl-tools .filter-grp input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
-.pl-tools .filter-grp select:disabled { opacity: 0.35; cursor: default; }
 
 /* NOW PLAYING BIG ---------------------------------------------------- */
 
@@ -889,7 +865,6 @@ img { display: block; max-width: 100%; }
   display: grid; place-items: center;
   border-right: var(--hair) solid var(--ink);
   position: relative;
-  overflow: hidden;
 }
 .now-big .cover .ph {
   font-family: "JetBrains Mono", monospace;
@@ -1002,7 +977,7 @@ img { display: block; max-width: 100%; }
 /* shows list */
 .od-show-head, .od-show-row {
   display: grid;
-  grid-template-columns: 56px 1fr 200px 40px 32px;
+  grid-template-columns: 56px 1fr 160px 200px 40px 32px;
   gap: 20px;
   align-items: center;
   padding: 14px 12px;
@@ -1016,6 +991,7 @@ img { display: block; max-width: 100%; }
 .od-show-row { cursor: pointer; transition: background 100ms, color 100ms; }
 .od-show-row:hover { background: var(--ink); color: var(--paper); }
 .od-show-row:hover .od-show-name .s,
+.od-show-row:hover .od-show-genre,
 .od-show-row:hover .od-show-meta { color: rgba(244,242,236,0.65); }
 .od-show-row:hover .od-show-arr { color: var(--accent); }
 .od-show-art {
@@ -1026,7 +1002,6 @@ img { display: block; max-width: 100%; }
   font-family: "Archivo", sans-serif; font-weight: 900;
   font-size: 20px; letter-spacing: -0.02em;
   transition: background 100ms, color 100ms;
-  overflow: hidden;
 }
 .od-show-row:hover .od-show-art { background: var(--accent); color: var(--ink); border-color: var(--accent); }
 .od-show-name { min-width: 0; }
@@ -1163,10 +1138,6 @@ img { display: block; max-width: 100%; }
   grid-template-columns: 280px 1fr 320px;
 }
 .now-big.od-detail::before { content: "OD"; font-size: 420px; right: 40px; }
-.now-big.od-detail .cover { aspect-ratio: unset; }
-.now-big.od-show::before { content: "OD"; font-size: 420px; right: 40px; }
-.now-big.od-show .cover { aspect-ratio: unset; }
-.now-big.now-live .cover { aspect-ratio: unset; }
 .od-detail .info { padding-top: 30px; padding-bottom: 30px; }
 .od-detail-desc {
   font-size: 15px; line-height: 1.5; max-width: 520px;
@@ -1572,8 +1543,6 @@ html { overflow-x: clip; }
   .player .track { max-width: 46vw; }
 }
 
-
-
 /* ====================================================================== */
 /* A-LIJST — maandelijkse curatorselectie (editorial / zine-poster)       */
 /* ====================================================================== */
@@ -1626,7 +1595,7 @@ html { overflow-x: clip; }
 }
 .al-current .mo {
   font-family: "Archivo", sans-serif; font-weight: 900;
-  font-size: clamp(20px, 2.5vw, 30px); line-height: 0.82;
+  font-size: clamp(56px, 8vw, 104px); line-height: 0.82;
   letter-spacing: -0.04em; text-transform: uppercase;
   color: var(--accent);
   padding: 22px 22px 6px;
@@ -1869,7 +1838,6 @@ html { overflow-x: clip; }
   .al-arch-grid { grid-template-columns: 1fr; }
 }
 
-
 /* ====================================================================== */
 /* DE BESTE 106 — jaarlijkse albumselectie (forks the A-Lijst poster)      */
 /* ====================================================================== */
@@ -1903,15 +1871,13 @@ html { overflow-x: clip; }
   .b106-album { grid-template-columns: 46px 1fr; }
 }
 
-
-
 /* COOKIE CONSENT ----------------------------------------------------- */
 /* Floats in a bottom corner ABOVE the fixed 84px player, out of the    */
 /* way of the player controls (right) and the top nav.                  */
 
 .cookie-wrap {
   position: fixed;
-  bottom: 66px;           /* clears the 84px player + its info box with breathing room */
+  bottom: 116px;           /* clears the 84px player + its info box with breathing room */
   z-index: 101;            /* above player (100) */
   display: flex;
 }
@@ -2014,8 +1980,6 @@ html { overflow-x: clip; }
   .cookie-wrap.right { left: 12px; right: 12px; }
   .cookie-card { width: 100%; }
 }
-
-
 
 /* COLOFON ============================================================= */
 
@@ -2341,7 +2305,7 @@ html { overflow-x: clip; }
   letter-spacing: -0.01em;
 }
 .vr-roles li:last-child { border-bottom: 0; }
-.vr-bullet { color: var(--ink); background: var(--accent); font-weight: 700; padding: 0 5px; }
+.vr-bullet { color: var(--accent); font-weight: 700; }
 .vr-roles-note {
   margin-top: 22px;
   font-size: 14px;
@@ -2529,8 +2493,6 @@ html { overflow-x: clip; }
   .sh-card:last-child { border-bottom: 0; }
   .sh-cta-bar { flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px 24px; }
 }
-
-
 
 /* ====================================================================== */
 /* SEARCH — inline nav input + dedicated results page                     */
@@ -2727,4 +2689,3 @@ html { overflow-x: clip; }
   .srch-ctx { grid-area: ctx; text-align: left; }
   .srch-arr { grid-area: arr; align-self: center; }
 }
-

@@ -35,6 +35,7 @@ function TopNav({ route, navigate }) {
     ['playlist', 'Playlist'],
     ['ondemand', 'On demand'],
     ['alijst', 'A-Lijst'],
+    ['beste106', 'Beste 106'],
   ];
 
 
