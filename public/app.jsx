@@ -39,6 +39,18 @@ function App() {
     window.scrollTo({ top: 0 });
   }, [route]);
 
+  // keep --nav-h in sync so the home hero can fill the viewport exactly
+  React.useEffect(() => {
+    const nav = document.querySelector('.topnav');
+    if (!nav) return;
+    const setH = () => document.documentElement.style.setProperty('--nav-h', nav.offsetHeight + 'px');
+    setH();
+    const ro = new ResizeObserver(setH);
+    ro.observe(nav);
+    window.addEventListener('resize', setH);
+    return () => { ro.disconnect(); window.removeEventListener('resize', setH); };
+  }, []);
+
   React.useEffect(() => {
     function onHash() {
       const { page, param } = parseHash();
@@ -62,7 +74,9 @@ function App() {
 
   return (
     <div style={style}>
-      <TopNav route={route} navigate={navigate}/>
+      <TopNav route={route} navigate={navigate} playing={playing} setPlaying={setPlaying}
+              offLive={!!(odNow || sessionFeed)}
+              returnToLive={() => { setOdNow(null); setSessionFeed(null); }}/> 
       <Ticker/>
 
       {Page

@@ -178,7 +178,7 @@ function Playlist({ setRoute, navigate, hashParam, nowPlaying }) {
         </div>
       )}
 
-      <main className="shell" data-screen-label="03 Playlist — History" style={{paddingTop:0}}>
+      <main className="shell" data-screen-label="03 Playlist — History" style={{paddingTop:0, paddingBottom:64}}>
 
         {/* Tools ──────────── */}
         <div className="pl-tools" style={{borderTop:'1px solid var(--ink)', marginTop:0}}>

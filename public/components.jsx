@@ -39,7 +39,7 @@ const SOCIALS = [
 ];
 
 // ─── Top nav ──────────────────────────────────────────────────────────
-function TopNav({ route, navigate }) {
+function TopNav({ route, navigate, playing, setPlaying, offLive, returnToLive }) {
   const items = [
     ['home', 'Home'],
     ['programmas', "Programma's"],
@@ -110,6 +110,21 @@ function TopNav({ route, navigate }) {
           ))}
         </nav>
         <div className="util">
+            {offLive ? (
+            <button className="nav-live is-return"
+                    onClick={returnToLive}
+                    aria-label="Terug naar live radio">
+              <span className="nav-live-ic"><Ic.arrow style={{transform:'scaleX(-1)'}}/></span>
+              <span className="nav-live-lbl">Live</span>
+            </button>
+          ) : (
+            <button className={"nav-live" + (playing ? ' is-playing' : '')}
+                    onClick={() => setPlaying(p => !p)}
+                    aria-label={playing ? 'Pauzeer live radio' : 'Luister live'}>
+              <span className="nav-live-ic">{playing ? <Ic.pause/> : <Ic.play/>}</span>
+              <span className="nav-live-lbl">{playing ? 'Live' : 'Luister'}</span>
+            </button>
+          )}
            <div className="nav-menu" ref={menuRef}>
             <button className={"ic" + (menuOpen ? ' is-active' : '')}
                     aria-label={menuOpen ? 'Menu sluiten' : 'Meer'}
