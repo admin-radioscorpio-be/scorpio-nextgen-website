@@ -8,7 +8,7 @@ const ANNOUNCEMENTS = [
     title: 'Scorpio Muziek Quiz',
     cta: 'Schrijf je in',
     start: '2026-01-01T00:00',
-    end:   '2026-07-31T23:59',
+    end:   '2026-03-31T23:59',
   },
 ];
 function activeAnnouncement() {
