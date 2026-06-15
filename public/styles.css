@@ -117,10 +117,10 @@ img { display: block; max-width: 100%; }
 .topnav nav a {
   padding: 8px 14px;
   font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-size: 15px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 700;
   border: var(--hair) solid transparent;
   transition: background 120ms, color 120ms, border-color 120ms;
   white-space: nowrap;
