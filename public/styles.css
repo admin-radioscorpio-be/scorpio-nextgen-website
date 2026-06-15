@@ -2195,6 +2195,97 @@ html { overflow-x: clip; }
   white-space: nowrap;
 }
 
+/* COOKIES ============================================================= */
+
+.ck-doc { max-width: 800px; }
+
+.ck-section {
+  padding: 36px 0;
+  border-top: var(--hair) solid var(--ink);
+}
+.ck-section:first-child { border-top: 2px solid var(--ink); margin-top: 8px; }
+.ck-section h2 {
+  font-family: "Archivo", sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin-bottom: 18px;
+}
+.ck-section p {
+  font-size: 16px;
+  line-height: 1.62;
+  color: var(--ink);
+  margin-bottom: 14px;
+  max-width: 66ch;
+  text-wrap: pretty;
+}
+.ck-section p:last-child { margin-bottom: 0; }
+.ck-section a { text-decoration: underline; text-underline-offset: 3px; }
+.ck-section a:hover { color: var(--mute); }
+
+.ck-list {
+  list-style: none;
+  margin: 0 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.ck-list li {
+  font-size: 15px;
+  line-height: 1.55;
+  padding: 10px 0 10px 20px;
+  border-bottom: var(--hair) solid rgba(10,10,10,0.1);
+  position: relative;
+  max-width: 66ch;
+}
+.ck-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+
+.ck-table {
+  border: var(--hair) solid var(--ink);
+}
+.ck-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 2fr;
+  padding: 12px 16px;
+  border-bottom: var(--hair) solid var(--ink);
+  font-size: 14px;
+  gap: 12px;
+  align-items: center;
+}
+.ck-row:last-child { border-bottom: 0; }
+.ck-row-hd {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ck-tag {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 11px;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+}
+
+.ck-contact {
+  font-size: 15px;
+  line-height: 1.7;
+  margin-top: 4px;
+}
+.ck-contact a { text-decoration: underline; text-underline-offset: 3px; }
+
 /* LOGO'S ============================================================== */
 
 .lg-intro {

@@ -33,9 +33,9 @@ const Ic = {
 
 // shared social set — nav cluster + overflow-menu row (footer keeps its own list)
 const SOCIALS = [
-  ['Instagram', 'ig'],
-  ['Facebook',  'fb'],
-  ['Mixcloud',  'mixcloud'],
+  ['Instagram', 'ig',       'https://www.instagram.com/radioscorpio106fm'],
+  ['Facebook',  'fb',       'https://www.facebook.com/radioscorpio'],
+  ['Mixcloud',  'mixcloud', 'https://www.mixcloud.com/RadioScorpio'],
 ];
 
 // ─── Top nav ──────────────────────────────────────────────────────────
@@ -124,11 +124,12 @@ function TopNav({ route, navigate }) {
                   <a key={lbl} role="menuitem" onClick={fn}>{lbl}<span className="nav-menu-arr">→</span></a>
                 ))}
                 <div className="nav-menu-social">
-                  {SOCIALS.map(([label, icon]) => {
+                  {SOCIALS.map(([label, icon, url]) => {
                     const Icon = Ic[icon];
                     return (
-                      <a key={label} href="#" aria-label={label} title={label}
-                         onClick={e => { e.preventDefault(); setMenuOpen(false); }}><Icon/></a>
+                      <a key={label} href={url} target="_blank" rel="noopener noreferrer"
+                         aria-label={label} title={label}
+                         onClick={() => setMenuOpen(false)}><Icon/></a>
                     );
                   })}
                 </div>
@@ -153,11 +154,11 @@ function TopNav({ route, navigate }) {
           <a href="/_emdash/api/auth/oauth/google" className="ic" aria-label="Inloggen"><Ic.user/></a>
           <span className="nav-sep" aria-hidden="true"></span>
           <div className="nav-social">
-            {SOCIALS.map(([label, icon]) => {
+            {SOCIALS.map(([label, icon, url]) => {
               const Icon = Ic[icon];
               return (
-                <a key={label} className="ic" href="#" aria-label={label} title={label}
-                   onClick={e => e.preventDefault()}><Icon/></a>
+                <a key={label} className="ic" href={url} target="_blank" rel="noopener noreferrer"
+                   aria-label={label} title={label}><Icon/></a>
               );
             })}
           </div>
@@ -485,15 +486,15 @@ function Footer() {
           <div>
             <h4>Volg</h4>
             <ul>
-              <li><a>Instagram</a></li>
-              <li><a>Facebook</a></li>
-              <li><a>Mixcloud</a></li>
+              {SOCIALS.map(([label, , url]) => (
+                <li key={label}><a href={url} target="_blank" rel="noopener noreferrer">{label}</a></li>
+              ))}
             </ul>
           </div>
         </div>
         <div className="bot">
           <span>© 1980—2026 Radio Scorpio VZW · Leuven</span>
-          <span>Privacy</span>
+          <a href="#/cookies" style={{cursor:'pointer'}}>Cookiebeleid</a>
         </div>
       </div>
     </div>

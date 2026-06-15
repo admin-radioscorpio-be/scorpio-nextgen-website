@@ -58,7 +58,7 @@ function App() {
   }, []);
 
   const Page = { home: Home, programmas: Programmas, playlist: Playlist, ondemand: OnDemand, alijst: ALijst,
-                 beste106: Beste106, colofon: Colofon, wiezijnwij: WieZijnWij, vrijwilliger: Vrijwilliger, steun: Shop, logos: Logos, search: Search }[route];
+                 beste106: Beste106, colofon: Colofon, wiezijnwij: WieZijnWij, vrijwilliger: Vrijwilliger, steun: Shop, logos: Logos, cookies: Cookies, search: Search }[route];
 
   return (
     <div style={style}>
