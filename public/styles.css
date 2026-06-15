@@ -138,6 +138,36 @@ img { display: block; max-width: 100%; }
 .topnav .util .ic:hover { background: var(--ink); color: var(--paper); }
 .topnav .util .ic.is-active { background: var(--ink); color: var(--paper); }
 
+/* social cluster (sits next to the menu button) */
+.nav-sep {
+  width: var(--hair); height: 22px;
+  background: var(--rule);
+  flex-shrink: 0;
+}
+.nav-social { display: flex; gap: 8px; }
+.nav-social .ic { cursor: pointer; }
+/* social row inside the overflow menu — wide desktops show inline icons instead */
+.nav-menu-social { display: none; }
+
+/* Below ~1200px the nav + utils get tight, so the inline social
+   cluster would overflow. Collapse it into the "Meer" menu there. */
+@media (max-width: 1200px) {
+  .nav-sep, .nav-social { display: none; }
+  .nav-menu-social {
+    display: flex; gap: 8px;
+    padding: 12px 6px 4px;
+    margin-top: 6px;
+    border-top: var(--hair) solid var(--rule);
+  }
+  .nav-menu-social a {
+    width: 42px; height: 42px;
+    display: grid; place-items: center;
+    border: var(--hair) solid var(--ink);
+    cursor: pointer;
+  }
+  .nav-menu-social a:hover { background: var(--ink); color: var(--paper); }
+}
+
 /* OVERFLOW MENU ------------------------------------------------------- */
 .nav-menu { position: relative; display: flex; }
 .nav-menu-pop {
@@ -1299,7 +1329,7 @@ html { overflow-x: clip; }
   .od-h1,
   .page-hd h1 { font-size: clamp(44px, 13vw, 200px); }
 
-  /* ---- TOP NAV: brand + utils on row 1, nav becomes a scroll rail ---- */
+  /* ---- TOP NAV: brand + utils on row 1, nav wraps onto multiple rows - */
   .topnav .inner {
     grid-template-columns: auto 1fr;
     grid-template-areas:
@@ -1313,16 +1343,13 @@ html { overflow-x: clip; }
   .topnav nav {
     grid-area: nav;
     justify-self: stretch;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    margin: 0 -16px;
-    padding: 2px 16px;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
     border-top: var(--hair) solid var(--rule);
-    padding-top: 10px;
+    padding-top: 12px;
   }
-  .topnav nav::-webkit-scrollbar { display: none; }
   .topnav nav a { padding: 9px 13px; }
   .topnav .util .ic { width: 40px; height: 40px; } /* touch target */
 

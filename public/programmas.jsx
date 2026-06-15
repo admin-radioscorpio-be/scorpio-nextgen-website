@@ -127,11 +127,6 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
 
   const genreChips = ['Alles', ...allGenres];
 
-  // Genre filter
-  const filtered = genre === 'Alles'
-    ? uniqueShows
-    : uniqueShows.filter(p => p.genres.includes(genre));
-
   // Lijst: blocks sorted by day order then time, filtered by genre
   const dayOrder = Object.fromEntries(DAYS.map((d, i) => [d, i]));
   const listBlocks = (genre === 'Alles' ? allBlocks : allBlocks.filter(p => p.genres.includes(genre)))
@@ -168,7 +163,7 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
           ))}
           <span style={{flex:1}}/>
           <div style={{display:'flex'}}>
-            {['grid','rooster','lijst'].map(v => (
+            {['rooster','lijst'].map(v => (
               <button key={v}
                       className={"chip" + (view === v ? ' is-active' : '')}
                       onClick={() => setView(v)}>
@@ -180,32 +175,6 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
       </section>
 
       <main className="shell" data-screen-label="02 Programmas — Content" style={{paddingTop:0}}>
-
-        {/* Grid view ─────────────────────────────────────── */}
-        {view === 'grid' && (
-          <div className="cards-grid" style={{borderTop:'1px solid var(--ink)', marginTop:0}}>
-            {filtered.map(p => (
-              <div className="card" key={p.id}
-                   style={{cursor: p.isNonstop ? 'default' : 'pointer'}}
-                   onClick={() => !p.isNonstop && goToOD(p.showid)}>
-                <div className="thumb">
-                  {p.imageURL
-                    ? <img src={p.imageURL} alt={p.name}
-                           style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-                    : <span className="ph">[ {p.name.toUpperCase()} ]</span>
-                  }
-                </div>
-                <div className="body">
-                  <div className="title">{p.name}</div>
-                </div>
-                <div className="foot">
-                  <span>{p.day} · {p.time}</span>
-                  <span style={{color:'var(--mute)'}}>{p.genres.length ? p.genres.join(', ') : '—'}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* Lijst view ─────────────────────────────────────── */}
         {view === 'lijst' && (

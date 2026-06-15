@@ -24,8 +24,19 @@ const Ic = {
   heart:  (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M8 14 C8 14 1 9.5 1 5 C1 2.5 3 1 5 1 C6.5 1 8 2 8 4 C8 2 9.5 1 11 1 C13 1 15 2.5 15 5 C15 9.5 8 14 8 14 Z" fill="none" stroke="currentColor" strokeWidth="1.5"/></svg>,
   menu:   (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M2 4 H14 M2 8 H14 M2 12 H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"/></svg>,
   close:  (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M3 3 L13 13 M13 3 L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"/></svg>,
+  ig:     (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><rect x="2.3" y="2.3" width="11.4" height="11.4" rx="3.4" fill="none" stroke="currentColor" strokeWidth="1.3"/><circle cx="8" cy="8" r="2.9" fill="none" stroke="currentColor" strokeWidth="1.3"/><circle cx="11.3" cy="4.7" r="0.95" fill="currentColor"/></svg>,
+  fb:     (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M9.4 3.4 C8 3.4 7.1 4.2 7.1 5.8 V12.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.3 7.4 H9.3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
+  mixcloud:(p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M1.8 11 V8.4 a2.6 2.6 0 0 1 5.2 0 V11 M7 11 V6.8 a2.8 2.8 0 0 1 5.6 0 V11 L14.2 11" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  yt:     (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><rect x="1.6" y="4" width="12.8" height="8" rx="2.4" fill="none" stroke="currentColor" strokeWidth="1.3"/><path d="M6.7 6.4 L10.2 8 L6.7 9.6 Z" fill="currentColor"/></svg>,
 
 };
+
+// shared social set — nav cluster + overflow-menu row (footer keeps its own list)
+const SOCIALS = [
+  ['Instagram', 'ig'],
+  ['Facebook',  'fb'],
+  ['Mixcloud',  'mixcloud'],
+];
 
 // ─── Top nav ──────────────────────────────────────────────────────────
 function TopNav({ route, navigate }) {
@@ -112,6 +123,15 @@ function TopNav({ route, navigate }) {
                 {overflow.map(([lbl, fn]) => (
                   <a key={lbl} role="menuitem" onClick={fn}>{lbl}<span className="nav-menu-arr">→</span></a>
                 ))}
+                <div className="nav-menu-social">
+                  {SOCIALS.map(([label, icon]) => {
+                    const Icon = Ic[icon];
+                    return (
+                      <a key={label} href="#" aria-label={label} title={label}
+                         onClick={e => { e.preventDefault(); setMenuOpen(false); }}><Icon/></a>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
@@ -131,6 +151,16 @@ function TopNav({ route, navigate }) {
           </form>
           <button className="ic" aria-label="Delen" onClick={() => shareUrl(window.location.href)}><Ic.share/></button>
           <a href="/_emdash/api/auth/oauth/google" className="ic" aria-label="Inloggen"><Ic.user/></a>
+          <span className="nav-sep" aria-hidden="true"></span>
+          <div className="nav-social">
+            {SOCIALS.map(([label, icon]) => {
+              const Icon = Ic[icon];
+              return (
+                <a key={label} className="ic" href="#" aria-label={label} title={label}
+                   onClick={e => e.preventDefault()}><Icon/></a>
+              );
+            })}
+          </div>
         </div>
       </div>
     </header>
