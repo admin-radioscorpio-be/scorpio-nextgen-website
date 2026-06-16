@@ -36,6 +36,7 @@ const SOCIALS = [
   ['Instagram', 'ig',       'https://www.instagram.com/radioscorpio106fm'],
   ['Facebook',  'fb',       'https://www.facebook.com/radioscorpio'],
   ['Mixcloud',  'mixcloud', 'https://www.mixcloud.com/RadioScorpio'],
+  ['YouTube',   'yt',       'https://www.youtube.com/@ScorpioSessionsRadioScorpio'],
 ];
 
 // ─── Top nav ──────────────────────────────────────────────────────────
