@@ -2062,9 +2062,8 @@ html { overflow-x: clip; }
 .cookie-link:hover { color: var(--accent); }
 
 @media (max-width: 768px) {
-  .cookie-wrap { bottom: 108px; left: 12px; right: 12px; }
-  .cookie-wrap.right { left: 12px; right: 12px; }
-  .cookie-card { width: 100%; }
+  .cookie-wrap { bottom: 108px; right: 12px; left: auto; }
+  .cookie-card { width: calc(100vw - 24px); }
 }
 
 
