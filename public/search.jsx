@@ -43,7 +43,7 @@ function groupResults(results) {
 
   (results || []).forEach(r => {
     const meta = parseMeta(r.display_meta);
-    if (r.type === 'show') {
+    if (r.type === 'programma') {
       shows.push({ ...r, meta });
     } else if (r.type === 'aflevering') {
       afleveringen.push({ ...r, meta });
