@@ -15,7 +15,7 @@ function alSource(url) {
   } catch { return ''; }
 }
 
-function useBeste106() {
+function useBeste106(initialParam) {
   const [lists, setLists]               = React.useState([]);
   const [currentId, setCurrentId]       = React.useState(null);
   const [edition, setEdition]           = React.useState(null);
@@ -29,7 +29,8 @@ function useBeste106() {
       .then(data => {
         const ls = data.lists ?? [];
         setLists(ls);
-        if (ls.length > 0) setCurrentId(ls[0].id); // API returns year DESC → first = newest
+        const fromHash = initialParam ? ls.find(l => String(l.id) === String(initialParam)) : null;
+        setCurrentId(fromHash ? fromHash.id : (ls.length > 0 ? ls[0].id : null));
         setListsLoading(false);
       })
       .catch(e => { setError(e.message); setListsLoading(false); });
@@ -48,12 +49,20 @@ function useBeste106() {
   return { lists, currentId, setCurrentId, edition, listsLoading, edLoading, error };
 }
 
-function Beste106() {
-  const { lists, currentId, setCurrentId, edition, listsLoading, edLoading, error } = useBeste106();
+function Beste106({ navigate, hashParam }) {
+  const { lists, currentId, setCurrentId, edition, listsLoading, edLoading, error } = useBeste106(hashParam);
+
+  // Sync when browser back/forward changes the hash
+  React.useEffect(() => {
+    if (!hashParam || !lists.length) return;
+    const match = lists.find(l => String(l.id) === String(hashParam));
+    if (match && match.id !== currentId) setCurrentId(match.id);
+  }, [hashParam, lists]);
 
   const listRef = React.useRef(null);
   const go = (id, scrollToList) => {
     setCurrentId(id);
+    navigate('beste106', String(id));
     if (scrollToList && listRef.current) {
       const y = listRef.current.getBoundingClientRect().top + window.scrollY - 80;
       window.scrollTo({ top: y, behavior: 'smooth' });
