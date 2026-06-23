@@ -22,45 +22,44 @@ function fmtDate(ts) {
   return d.toLocaleDateString('nl-BE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
+function startTimeToRoute(ts) {
+  if (!ts) return null;
+  const d = new Date(ts * 1000);
+  const date = d.toLocaleDateString('sv', { timeZone: 'Europe/Brussels' }); // sv → YYYY-MM-DD
+  const hour = Number(d.toLocaleString('en-GB', { hour: '2-digit', hour12: false, timeZone: 'Europe/Brussels' }).split(':')[0]);
+  return `${date}/${hour}`;
+}
+
 function parseMeta(raw) {
   try { return typeof raw === 'string' ? JSON.parse(raw) : (raw || {}); } catch { return {}; }
 }
 
 function groupResults(results) {
   const shows = [];
-  const alijstEditions = [];
-  const alijstTracks = [];
-  const episodeTracks = [];
-  const ptMap = new Map();
+  const afleveringen = [];
+  const alijst = [];
+  const playlist = [];
+  const beste106 = [];
 
   (results || []).forEach(r => {
     const meta = parseMeta(r.display_meta);
     if (r.type === 'show') {
       shows.push({ ...r, meta });
-    } else if (r.type === 'alijst') {
-      alijstEditions.push({ ...r, meta });
-    } else if (r.type === 'alijst_track') {
+    } else if (r.type === 'aflevering') {
+      afleveringen.push({ ...r, meta });
+    } else if (r.type === 'a-lijst') {
       const { artist, track } = splitTitle(r.title);
-      alijstTracks.push({ ...r, meta, artist, track });
-    } else if (r.type === 'episode_track') {
+      alijst.push({ ...r, meta, artist, track });
+    } else if (r.type === 'playlist') {
       const { artist, track } = splitTitle(r.title);
-      episodeTracks.push({ ...r, meta, artist, track });
-    } else if (r.type === 'playlist_track') {
+      playlist.push({ ...r, meta, artist, track });
+    } else if (r.type === 'beste106') {
       const { artist, track } = splitTitle(r.title);
-      const key = r.title.trim().toLowerCase();
-      if (!ptMap.has(key)) {
-        ptMap.set(key, { ...r, meta, artist, track, count: 1 });
-      } else {
-        const ex = ptMap.get(key);
-        ex.count++;
-        if ((meta.startTime || 0) > (ex.meta.startTime || 0)) {
-          ptMap.set(key, { ...r, meta, artist, track, count: ex.count });
-        }
-      }
+      beste106.push({ ...r, meta, artist, track });
     }
   });
 
-  return { shows, alijstEditions, alijstTracks, episodeTracks, playlistTracks: [...ptMap.values()] };
+  return { shows, afleveringen, alijst, playlist, beste106 };
 }
 
 // ─── term highlighting ─────────────────────────────────────────────────
@@ -112,67 +111,72 @@ function Search({ navigate, hashParam }) {
 
   const groups = grouped ? [
     {
-      key: 'show', label: 'Shows', items: grouped.shows,
+      key: 'show', label: 'Shows', sub: 'Scorpio OD', items: grouped.shows,
       row: it => (
         <SrchRow key={'s' + it.source_id}
                  mark={srchMonogram(it.title)}
                  primary={hlt(it.title, terms)}
-                 ctx={it.meta.isActive ? 'Actief' : 'Archief'}
+                 ctx={it.meta.isActive === false ? 'Archief' : 'Actief'}
                  jump="Open show"
-                 onClick={() => navigate('ondemand')}/>
+                 onClick={() => navigate('ondemand', String(it.source_id))}/>
       ),
     },
     {
-      key: 'alijst', label: 'A-Lijst edities', items: grouped.alijstEditions,
+      key: 'aflevering', label: 'Afleveringen', sub: 'Scorpio OD', items: grouped.afleveringen,
+      row: it => (
+        <SrchRow key={'ep' + it.source_id}
+                 mark={srchMonogram(it.meta.showName || it.title)}
+                 primary={hlt(it.title, terms)}
+                 secondary={it.meta.showName ? hlt(it.meta.showName, terms) : null}
+                 ctx={it.meta.season || ''}
+                 jump="Open aflevering"
+                 onClick={() => navigate('ondemand', `${it.meta.showid || it.meta.show_id}/${it.source_id}`)}/>
+      ),
+    },
+    {
+      key: 'a-lijst', label: 'A-Lijst', items: grouped.alijst,
       row: it => (
         <SrchRow key={'al' + it.source_id}
-                 mark={srchMonogram(it.title)}
-                 primary={hlt(it.title, terms)}
-                 ctx={it.meta.month || ''}
-                 jump="Open editie"
-                 onClick={() => navigate('alijst')}/>
-      ),
-    },
-    {
-      key: 'alijst_track', label: 'A-Lijst tracks', items: grouped.alijstTracks,
-      row: it => (
-        <SrchRow key={'at' + it.source_id}
                  mark={<Ic.play/>}
-                 primary={hlt(it.artist, terms)}
-                 secondary={hlt(it.track, terms)}
-                 ctx={it.meta.month || ''}
+                 primary={hlt(it.artist || it.title, terms)}
+                 secondary={it.artist ? hlt(it.track, terms) : null}
+                 ctx={it.meta.month || it.meta.year || ''}
                  jump="Naar A-Lijst"
-                 onClick={() => navigate('alijst')}/>
+                 onClick={() => navigate('alijst', String(it.meta.alijst_id || it.source_id))}/>
       ),
     },
     {
-      key: 'episode_track', label: 'Aflevering-tracks', sub: 'Scorpio OD', items: grouped.episodeTracks,
-      row: it => (
-        <SrchRow key={'et' + it.source_id}
-                 mark={<Ic.play/>}
-                 primary={hlt(it.artist, terms)}
-                 secondary={hlt(it.track, terms)}
-                 ctx="Scorpio OD"
-                 jump="Open aflevering"
-                 onClick={() => navigate('ondemand')}/>
-      ),
+      key: 'playlist', label: 'Playlist', items: grouped.playlist,
+      row: it => {
+        const ts = it.meta.startTime || it.startTime;
+        const route = startTimeToRoute(ts);
+        return (
+          <SrchRow key={'pl' + it.source_id}
+                   mark={<Ic.play/>}
+                   primary={hlt(it.artist || it.title, terms)}
+                   secondary={it.artist ? hlt(it.track, terms) : null}
+                   ctx={fmtDate(ts)}
+                   jump="Naar playlist"
+                   onClick={() => route ? navigate('playlist', route) : navigate('playlist')}/>
+        );
+      },
     },
     {
-      key: 'playlist_track', label: 'Playlist', sub: 'Recent gedraaid', items: grouped.playlistTracks,
+      key: 'beste106', label: 'Beste 106', items: grouped.beste106,
       row: it => (
-        <SrchRow key={'pt' + it.source_id}
-                 mark={<Ic.play/>}
-                 primary={hlt(it.artist, terms)}
-                 secondary={hlt(it.track, terms)}
-                 ctx={it.count > 1 ? `${it.count}× gedraaid · ${fmtDate(it.meta.startTime)}` : fmtDate(it.meta.startTime)}
-                 jump="Naar playlist"
-                 onClick={() => navigate('playlist')}/>
+        <SrchRow key={'b' + it.source_id}
+                 mark={srchMonogram(it.artist || it.title)}
+                 primary={hlt(it.artist || it.title, terms)}
+                 secondary={it.artist ? hlt(it.track, terms) : null}
+                 ctx={it.meta.year ? String(it.meta.year) : ''}
+                 jump="Naar Beste 106"
+                 onClick={() => navigate('beste106', String(it.meta.beste106_id || it.source_id))}/>
       ),
     },
   ] : [];
 
   const total = grouped
-    ? grouped.shows.length + grouped.alijstEditions.length + grouped.alijstTracks.length + grouped.episodeTracks.length + grouped.playlistTracks.length
+    ? grouped.shows.length + grouped.afleveringen.length + grouped.alijst.length + grouped.playlist.length + grouped.beste106.length
     : 0;
   const live = groups.filter(g => g.items.length);
 
@@ -216,7 +220,7 @@ function Search({ navigate, hashParam }) {
         {!loading && !error && !grouped && (
           <div className="od-empty">
             <p style={{ color: 'var(--mute)' }}>
-              Typ iets in het zoekveld bovenaan om te zoeken in shows, tracks en playlist.
+              Typ iets in het zoekveld bovenaan om te zoeken in shows, afleveringen, A-Lijst, playlist en Beste 106.
             </p>
           </div>
         )}
