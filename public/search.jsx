@@ -22,12 +22,13 @@ function fmtDate(ts) {
   return d.toLocaleDateString('nl-BE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-function startTimeToRoute(ts) {
-  if (!ts) return null;
-  const d = new Date(ts * 1000);
-  const date = d.toLocaleDateString('sv', { timeZone: 'Europe/Brussels' }); // sv → YYYY-MM-DD
-  const hour = Number(d.toLocaleString('en-GB', { hour: '2-digit', hour12: false, timeZone: 'Europe/Brussels' }).split(':')[0]);
-  return `${date}/${hour}`;
+function navFromLink(link, navigate) {
+  if (!link) return;
+  try {
+    const hash = new URL(link).hash.replace(/^#\/?/, '');
+    const [page, ...rest] = hash.split('/');
+    if (page) navigate(page, rest.length ? rest.join('/') : null);
+  } catch {}
 }
 
 function parseMeta(raw) {
@@ -118,7 +119,7 @@ function Search({ navigate, hashParam }) {
                  primary={hlt(it.title, terms)}
                  ctx={it.meta.isActive === false ? 'Archief' : 'Actief'}
                  jump="Open show"
-                 onClick={() => navigate('ondemand', String(it.source_id))}/>
+                 onClick={() => navFromLink(it.meta.link, navigate)}/>
       ),
     },
     {
@@ -130,7 +131,7 @@ function Search({ navigate, hashParam }) {
                  secondary={it.meta.showName ? hlt(it.meta.showName, terms) : null}
                  ctx={it.meta.season || ''}
                  jump="Open aflevering"
-                 onClick={() => navigate('ondemand', `${it.meta.showid || it.meta.show_id}/${it.source_id}`)}/>
+                 onClick={() => navFromLink(it.meta.link, navigate)}/>
       ),
     },
     {
@@ -142,24 +143,20 @@ function Search({ navigate, hashParam }) {
                  secondary={it.artist ? hlt(it.track, terms) : null}
                  ctx={it.meta.month || it.meta.year || ''}
                  jump="Naar A-Lijst"
-                 onClick={() => navigate('alijst', String(it.meta.alijst_id || it.source_id))}/>
+                 onClick={() => navFromLink(it.meta.link, navigate)}/>
       ),
     },
     {
       key: 'playlist', label: 'Playlist', items: grouped.playlist,
-      row: it => {
-        const ts = it.meta.startTime || it.startTime;
-        const route = startTimeToRoute(ts);
-        return (
-          <SrchRow key={'pl' + it.source_id}
-                   mark={<Ic.play/>}
-                   primary={hlt(it.artist || it.title, terms)}
-                   secondary={it.artist ? hlt(it.track, terms) : null}
-                   ctx={fmtDate(ts)}
-                   jump="Naar playlist"
-                   onClick={() => route ? navigate('playlist', route) : navigate('playlist')}/>
-        );
-      },
+      row: it => (
+        <SrchRow key={'pl' + it.source_id}
+                 mark={<Ic.play/>}
+                 primary={hlt(it.artist || it.title, terms)}
+                 secondary={it.artist ? hlt(it.track, terms) : null}
+                 ctx={fmtDate(it.meta.startTime)}
+                 jump="Naar playlist"
+                 onClick={() => navFromLink(it.meta.link, navigate)}/>
+      ),
     },
     {
       key: 'beste106', label: 'Beste 106', items: grouped.beste106,
@@ -170,7 +167,7 @@ function Search({ navigate, hashParam }) {
                  secondary={it.artist ? hlt(it.track, terms) : null}
                  ctx={it.meta.year ? String(it.meta.year) : ''}
                  jump="Naar Beste 106"
-                 onClick={() => navigate('beste106', String(it.meta.beste106_id || it.source_id))}/>
+                 onClick={() => navFromLink(it.meta.link, navigate)}/>
       ),
     },
   ] : [];
