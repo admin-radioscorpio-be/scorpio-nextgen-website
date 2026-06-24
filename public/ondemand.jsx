@@ -132,54 +132,6 @@ function ODWordmark() {
 
 
 
-// ─── Favorites ────────────────────────────────────────────────────────────
-const OD_FAV_KEY = 'scorpio_od_favs_v1';
-function decodeFavParam(p) {
-  try { return JSON.parse(decodeURIComponent(escape(atob(p)))); } catch (e) { return null; }
-}
-function useODFavorites() {
-  const [favs, setFavs] = React.useState(() => {
-    let base = { shows: [], episodes: [] };
-    try {
-      const param = new URL(window.location.href).searchParams.get('od_favs');
-      const imported = param && decodeFavParam(param);
-      const stored = localStorage.getItem(OD_FAV_KEY);
-      const local = stored ? JSON.parse(stored) : null;
-      if (imported) base = {
-        shows: [...new Set([...(local?.shows || []), ...(imported.shows || [])])],
-        episodes: [...new Set([...(local?.episodes || []), ...(imported.episodes || [])])],
-      };
-      else if (local) base = { shows: local.shows || [], episodes: local.episodes || [] };
-    } catch (e) {}
-    return base;
-  });
-  React.useEffect(() => {
-    try { localStorage.setItem(OD_FAV_KEY, JSON.stringify(favs)); } catch (e) {}
-  }, [favs]);
-  const toggle = (type, id) => setFavs(f => {
-    const k = type === 'show' ? 'shows' : 'episodes';
-    const has = f[k].includes(id);
-    return { ...f, [k]: has ? f[k].filter(x => x !== id) : [...f[k], id] };
-  });
-  const isFav = (type, id) => (type === 'show' ? favs.shows : favs.episodes).includes(id);
-  const count = favs.shows.length + favs.episodes.length;
-  const shareLink = () => {
-    const enc = btoa(unescape(encodeURIComponent(JSON.stringify(favs))));
-    return `${location.origin}${location.pathname}?od_favs=${enc}`;
-  };
-  return { favs, toggle, isFav, count, shareLink };
-}
-
-// ─── Heart button ─────────────────────────────────────────────────────────
-function FavBtn({ active, onClick, label }) {
-  return (
-    <button className={'od-fav' + (active ? ' is-on' : '')} onClick={onClick}
-            aria-label={active ? 'Verwijder uit favorieten' : 'Bewaar als favoriet'} title={label}>
-      <Ic.heart/>
-    </button>
-  );
-}
-
 // ─── Shows list ───────────────────────────────────────────────────────────
 function odMonogram(name) {
   const parts = name.split(/[\s/]+/).filter(Boolean);
@@ -187,10 +139,9 @@ function odMonogram(name) {
   return name.slice(0, 2).toUpperCase();
 }
 
-function ODShows({ shows, loading, error, tag, favOnly, fav, onOpen }) {
+function ODShows({ shows, loading, error, tag, onOpen }) {
   let filtered = shows.filter(s => s.episodeCount > 0);
   if (tag && tag !== 'Alles') filtered = filtered.filter(s => s.tags?.includes(tag));
-  if (favOnly) filtered = filtered.filter(s => fav.isFav('show', s.showid));
   filtered = [...filtered].sort((a, b) => (b.lastEpisodeDate ?? 0) - (a.lastEpisodeDate ?? 0));
 
   if (loading) return (
@@ -208,8 +159,7 @@ function ODShows({ shows, loading, error, tag, favOnly, fav, onOpen }) {
   if (!filtered.length) return (
     <div className="od-empty">
       <div className="eyebrow" style={{ color: 'var(--mute)', marginBottom: 12 }}>// Leeg</div>
-      <p>{favOnly ? 'Nog geen favoriete shows. Tik op het hartje van een show om hem te bewaren.'
-                  : 'Geen shows gevonden.'}</p>
+      <p>Geen shows gevonden.</p>
     </div>
   );
 
@@ -217,7 +167,7 @@ function ODShows({ shows, loading, error, tag, favOnly, fav, onOpen }) {
     <div className="od-show-list" style={{ borderTop: '1px solid var(--ink)', marginTop: 24 }}>
       <div className="od-show-head">
         <span></span><span>show</span>
-        <span>archief</span><span></span><span></span>
+        <span>archief</span><span></span>
       </div>
       {filtered.map(s => (
         <div className="od-show-row" key={s.showid} onClick={() => onOpen(s)}>
@@ -237,8 +187,6 @@ function ODShows({ shows, loading, error, tag, favOnly, fav, onOpen }) {
           <span className="od-show-meta">
             {s.episodeCount} afl.{s.lastEpisodeDate ? ` · ${fmtOdDate(s.lastEpisodeDate)}` : ''}
           </span>
-          <FavBtn active={fav.isFav('show', s.showid)} label="Bewaar show"
-                  onClick={(e) => { e.stopPropagation(); fav.toggle('show', s.showid); }}/>
           <span className="od-show-arr">→</span>
         </div>
       ))}
@@ -247,7 +195,7 @@ function ODShows({ shows, loading, error, tag, favOnly, fav, onOpen }) {
 }
 
 // ─── Episode list ─────────────────────────────────────────────────────────
-function ODEpisodes({ show, fav, onOpen, onBack, pendingEpisodeId, onPendingResolved }) {
+function ODEpisodes({ show, onOpen, onBack, pendingEpisodeId, onPendingResolved }) {
   const [season, setSeason]   = React.useState('Alles');
   const seasons               = useODSeasons(show.showid);
   const { episodes, loading, error, nextCursor, loadMore, loadingMore } = useODEpisodes(show.showid, season);
@@ -311,17 +259,15 @@ function ODEpisodes({ show, fav, onOpen, onBack, pendingEpisodeId, onPendingReso
               <p className="od-detail-desc" style={{ whiteSpace: 'pre-line' }}>{show.description}</p>
             )}
           </div>
-          <div className="row" style={{ flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
-            <FavBtn active={fav.isFav('show', show.showid)} label="Bewaar show"
-                    onClick={() => fav.toggle('show', show.showid)}/>
-            {show.tags?.length > 0 && (
+          {show.tags?.length > 0 && (
+            <div className="row" style={{ flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
               <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11,
                              letterSpacing: '0.08em', textTransform: 'uppercase',
                              color: 'rgba(10,10,10,0.55)' }}>
                 {show.tags.join(' · ')}
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -350,7 +296,7 @@ function ODEpisodes({ show, fav, onOpen, onBack, pendingEpisodeId, onPendingReso
           <div className="od-eplist">
             <div className="od-ep-head">
               <span>datum</span><span>seizoen</span><span>#</span>
-              <span>aflevering</span><span></span><span></span>
+              <span>aflevering</span><span></span>
             </div>
             {episodes.map((ep, i) => (
               <div className="od-ep-row" key={ep.id} onClick={() => onOpen(ep)}>
@@ -361,8 +307,6 @@ function ODEpisodes({ show, fav, onOpen, onBack, pendingEpisodeId, onPendingReso
                   <div className="t">{ep.title}</div>
                   <div className="s">{ep.description ?? ''}</div>
                 </div>
-                <FavBtn active={fav.isFav('episode', ep.id)} label="Bewaar aflevering"
-                        onClick={(e) => { e.stopPropagation(); fav.toggle('episode', ep.id); }}/>
                 <span className="od-ep-play"><Ic.play/></span>
               </div>
             ))}
@@ -382,7 +326,7 @@ function ODEpisodes({ show, fav, onOpen, onBack, pendingEpisodeId, onPendingReso
 }
 
 // ─── Episode detail + tracklist ───────────────────────────────────────────
-function ODDetail({ episode, show, fav, onBack, onPlay, isCurrent }) {
+function ODDetail({ episode, show, onBack, onPlay, isCurrent }) {
   const { items, loading: trackLoading } = useODTracklist(episode);
 
   return (
@@ -407,18 +351,6 @@ function ODDetail({ episode, show, fav, onBack, onPlay, isCurrent }) {
               {show.showName} · {fmtOdDate(episode.episodeDate)}
             </div>
             {episode.description && <p className="od-detail-desc" style={{whiteSpace:'pre-line'}}>{episode.description}</p>}
-          </div>
-          <div className="row" style={{ flexWrap: 'wrap', gap: 16 }}>
-            <span style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
-              <button className="od-detail-link" onClick={() => fav.toggle('episode', episode.id)}>
-                {fav.isFav('episode', episode.id) ? '♥ Bewaard' : '♡ Bewaar'}
-              </button>
-              {episode.mixcloudURL && (
-                <a className="od-detail-link" href={episode.mixcloudURL}
-                   target="_blank" rel="noopener noreferrer">Mixcloud →</a>
-              )}
-            </span>
-            <span className="od-detail-stat">{fmtOdDate(episode.episodeDate)}</span>
           </div>
         </div>
         <div className="od-detail-action">
@@ -488,13 +420,10 @@ function ODDetail({ episode, show, fav, onBack, onPlay, isCurrent }) {
 
 // ─── Page root ────────────────────────────────────────────────────────────
 function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, setPlaying, odTarget, setOdTarget }) {
-  const fav                              = useODFavorites();
   const [view, setView]                  = React.useState('shows');
   const [tag, setTag]                    = React.useState('Alles');
-  const [favOnly, setFavOnly]            = React.useState(false);
   const [show, setShow]                  = React.useState(null);
   const [episode, setEpisode]            = React.useState(null);
-  const [toast, setToast]                = React.useState(null);
   const [pendingEpisodeId, setPendingEpisodeId] = React.useState(null);
   const { shows, loading, error }        = useODShows();
 
@@ -549,17 +478,6 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
     });
   };
 
-  const doShare = async () => {
-    const link = fav.shareLink();
-    try {
-      await navigator.clipboard.writeText(link);
-      setToast('Link naar je favorieten gekopieerd — plak hem op een ander toestel.');
-    } catch (e) {
-      setToast(link);
-    }
-    setTimeout(() => setToast(null), 4200);
-  };
-
   return (
     <>
       <section data-screen-label="OD — Header">
@@ -586,12 +504,6 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
               <button key={g} className={'chip' + (tag === g ? ' is-active' : '')}
                       onClick={() => setTag(g)}>{g}</button>
             ))}
-            <span style={{ flex: 1 }}/>
-            <button className={'chip' + (favOnly ? ' is-active' : '')}
-                    onClick={() => setFavOnly(v => !v)}>
-              ♥ Favorieten {fav.count ? `(${fav.count})` : ''}
-            </button>
-            <button className="chip" onClick={doShare}>Deel ↗</button>
           </div>
         )}
       </section>
@@ -599,25 +511,23 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
       <main className="shell" style={{ paddingTop: 0, paddingBottom: 64 }}>
         {view === 'shows' && (
           <ODShows shows={shows} loading={loading} error={error}
-                   tag={tag} favOnly={favOnly} fav={fav} onOpen={openShow}/>
+                   tag={tag} onOpen={openShow}/>
         )}
       </main>
 
       {view === 'episodes' && show && (
-        <ODEpisodes show={show} fav={fav} onOpen={openEp}
+        <ODEpisodes show={show} onOpen={openEp}
                     pendingEpisodeId={pendingEpisodeId}
                     onPendingResolved={() => setPendingEpisodeId(null)}
                     onBack={() => { setView('shows'); navigate('ondemand'); }}/>
       )}
 
       {view === 'detail' && episode && show && (
-        <ODDetail episode={episode} show={show} fav={fav}
+        <ODDetail episode={episode} show={show}
                   onBack={() => { setView('episodes'); navigate('ondemand', String(show.showid)); }}
                   onPlay={play}
                   isCurrent={!!episode.mixcloudURL && sessionFeed?.feed === mixcloudFeed(episode.mixcloudURL)}/>
       )}
-
-      {toast && <div className="od-toast">{toast}</div>}
     </>
   );
 }

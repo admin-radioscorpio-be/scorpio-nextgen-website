@@ -1055,7 +1055,7 @@ img { display: block; max-width: 100%; }
 /* shows list */
 .od-show-head, .od-show-row {
   display: grid;
-  grid-template-columns: 56px 1fr 200px 40px 32px;
+  grid-template-columns: 56px 1fr 200px 32px;
   gap: 20px;
   align-items: center;
   padding: 14px 12px;
@@ -1169,7 +1169,7 @@ img { display: block; max-width: 100%; }
 /* episode list */
 .od-ep-head, .od-ep-row {
   display: grid;
-  grid-template-columns: 96px 72px 44px 1fr 80px 40px 36px;
+  grid-template-columns: 96px 72px 44px 1fr 80px 36px;
   gap: 16px;
   align-items: center;
   padding: 14px 12px;
@@ -1506,7 +1506,7 @@ html { overflow-x: clip; }
   .od-show-row {
     grid-template-columns: 56px minmax(0, 1fr) auto;
     grid-template-areas:
-      "art name fav"
+      "art name arr"
       "art genre arr"
       "art meta meta";
     gap: 4px 14px;
@@ -1519,7 +1519,6 @@ html { overflow-x: clip; }
   .od-show-name .s { max-width: none; white-space: normal; }
   .od-show-genre { grid-area: genre; }
   .od-show-meta { grid-area: meta; }
-  .od-show-row .od-fav { grid-area: fav; justify-self: end; }
   .od-show-arr { grid-area: arr; justify-self: end; align-self: center; }
 
   /* ---- OD: EPISODE list → stacked card ------------------------------ */
@@ -1528,7 +1527,7 @@ html { overflow-x: clip; }
     grid-template-columns: minmax(0, 1fr) auto auto;
     grid-template-areas:
       "title title play"
-      "date  dur   fav";
+      "date  dur   play";
     gap: 6px 12px;
     padding: 14px 8px;
   }
@@ -1537,7 +1536,6 @@ html { overflow-x: clip; }
   .od-ep-title { grid-area: title; min-width: 0; }
   .od-ep-date { grid-area: date; align-self: center; }
   .od-ep-dur  { grid-area: dur; align-self: center; }
-  .od-ep-row .od-fav { grid-area: fav; justify-self: end; }
   .od-ep-play { grid-area: play; justify-self: end; align-self: center; }
 
   /* ---- OD: sub-header + toolbar ------------------------------------- */
