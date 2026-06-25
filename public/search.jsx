@@ -153,7 +153,7 @@ function Search({ navigate, hashParam }) {
                  mark={<Ic.play/>}
                  primary={hlt(it.artist || it.title, terms)}
                  secondary={it.artist ? hlt(it.track, terms) : null}
-                 ctx={fmtDate(it.meta.startTime)}
+                 ctx={it.meta.date ? it.meta.date.split('-').reverse().join('/') + (it.meta.hour != null ? ` · ${it.meta.hour}u` : '') : ''}
                  jump="Naar playlist"
                  onClick={() => navFromLink(it.meta.link, navigate)}/>
       ),
