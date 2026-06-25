@@ -3,9 +3,18 @@
 const SHOP_URL = 'https://radioscorpio.myspreadshop.be';
 
 const SHOP_ITEMS = [
-  { id: 'tee-black', name: 'Logo-tee — zwart op zwart', note: 'Gedrukt in Leuven' },
-  { id: 'tee-white', name: 'Logo-tee — wit op wit',     note: 'Gedrukt in Leuven' },
-  { id: 'tee-crest', name: 'Scorpion crest',            note: 'Gesigneerd door je DJ' },
+  {
+    id: 'tee-black',
+    name: 'Logo-tee — zwart op zwart',
+    note: 'Steun ons om de ether reclamevrij te houden',
+    image: 'https://image.spreadshirtmedia.net/image-server/v1/products/T814A1271PA8554PT17X37Y72D167008269W17443H4490Cx000000/views/1,width=650,height=650,appearanceId=1256.jpg',
+  },
+  {
+    id: 'tee-white',
+    name: 'Logo-tee — wit op wit',
+    note: 'Steun ons om de ether reclamevrij te houden',
+    image: 'https://image.spreadshirtmedia.net/image-server/v1/products/T6A4PA8124PT17X64Y51D11685405W24877H6356/views/1,width=650,height=650,appearanceId=231.jpg',
+  },
 ];
 
 function Shop({ setRoute }) {
@@ -30,7 +39,7 @@ function Shop({ setRoute }) {
       <main className="shell" data-screen-label="Shop — Content" style={{paddingTop: 0}}>
         <p className="sh-intro">
           Trotse SCORPIO-drager? Onze nieuwe collectie is binnen. Zwart op zwart,
-          wit op wit, gedrukt in Leuven en gesigneerd door je favoriete DJ. Elke
+          wit op wit. Elke
           aankoop houdt de zender reclamevrij in de ether.
         </p>
 
@@ -38,13 +47,9 @@ function Shop({ setRoute }) {
         <div className="sh-grid">
           {SHOP_ITEMS.map((it, i) => (
             <a className="sh-card" key={it.id} href={SHOP_URL} target="_blank" rel="noopener">
-              <image-slot
-                id={'shop-' + it.id}
-                className="sh-slot"
-                shape="rect"
-                fit="cover"
-                placeholder="Sleep een t-shirtfoto hierin">
-              </image-slot>
+              <div className="sh-slot">
+                <img src={it.image} alt={it.name} style={{width:'100%', height:'100%', objectFit:'cover', display:'block'}}/>
+              </div>
               <div className="sh-card-body">
                 <div className="sh-card-name">{it.name}</div>
                 <div className="sh-card-note">{it.note}</div>
@@ -59,7 +64,7 @@ function Shop({ setRoute }) {
           <div>
             <div className="eyebrow" style={{color:'var(--accent)', marginBottom:10}}>// Volledige collectie</div>
             <h3>Naar de webshop</h3>
-            <p>T-shirts, totebags en het broadcast-archief op vinyl — prijzen en bestellen op onze shop.</p>
+            <p>T-shirts, totebags en tassen — prijzen en bestellen op onze shop.</p>
           </div>
           <span className="sh-cta-arrow"><Ic.arrow/></span>
         </a>
