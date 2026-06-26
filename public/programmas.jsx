@@ -22,21 +22,31 @@ function fmtWeekLabel(details, nav) {
   return `Week ${weekNum} · ${d0d} — ${d1d} ${month} ${year}`;
 }
 
-function useSchedule() {
+function useSchedule(startDate) {
   const [schedule, setSchedule] = React.useState(null);
   const [loading, setLoading]   = React.useState(true);
   const [error, setError]       = React.useState(null);
 
   React.useEffect(() => {
+    setLoading(true);
+    setError(null);
+    const body = startDate ? JSON.stringify({ startlistdate: startDate }) : '{}';
     fetch(SCHEDULE_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: '{}',
+      body,
     })
       .then(r => r.json())
       .then(json => {
         const details = json?.programmatielijn?.details ?? [];
         const nav     = json?.programmatielijn?.navigatie?.navigatieblok ?? {};
+
+        // Day abbreviation → date string (dd/mm)
+        const datesByDay = {};
+        details.forEach(col => {
+          const c = col.programmatiecolumn;
+          datesByDay[DAY_ABBR[c.day] ?? c.day] = c.date;
+        });
 
         // Flatten all blocks
         const allBlocks = [];
@@ -88,12 +98,12 @@ function useSchedule() {
 
         const allGenres = json?.programmatielijn?.allGenres ?? [];
 
-        setSchedule({ allBlocks, byDaySlot, slots, uniqueShows, allGenres,
+        setSchedule({ allBlocks, byDaySlot, slots, uniqueShows, allGenres, datesByDay, nav,
                       weekLabel: fmtWeekLabel(details, nav) });
         setLoading(false);
       })
       .catch(e => { setError(e.message); setLoading(false); });
-  }, []);
+  }, [startDate]);
 
   return { schedule, loading, error };
 }
@@ -104,28 +114,43 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
   const [genre, setGenre]           = React.useState('Alles');
   const [view, setView]             = React.useState('lijst');
   const [hoveredGroup, setHovered]  = React.useState(null);
-  const { schedule, loading, error } = useSchedule();
+  const [startDate, setStartDate]   = React.useState(null);
+  const { schedule, loading, error } = useSchedule(startDate);
 
   function goToOD(showid) {
     setOdTarget({ showid });
     navigate('ondemand');
   }
 
-  if (loading) return (
+  // Only show full-page spinner on the very first load (no data yet)
+  if (loading && !schedule) return (
     <div style={{ padding:'120px 0', textAlign:'center', color:'var(--mute)' }}>
       Programma laden…
     </div>
   );
 
-  if (error) return (
+  if (error && !schedule) return (
     <div style={{ padding:'120px 0', textAlign:'center', color:'var(--mute)' }}>
       Kon programma niet laden.
     </div>
   );
 
-  const { allBlocks, byDaySlot, slots, uniqueShows, allGenres, weekLabel } = schedule;
+  // During week navigation: loading=true but schedule still holds the previous week's data
+  const isRefreshing = loading && !!schedule;
+
+  const { allBlocks, byDaySlot, slots, uniqueShows, allGenres, datesByDay, nav, weekLabel } = schedule;
 
   const genreChips = ['Alles', ...allGenres];
+
+  // Shared nav button style
+  const navBtnStyle = (enabled) => ({
+    background: 'none', border: 'none', color: 'inherit', lineHeight: 1,
+    fontSize: 18, padding: '2px 10px',
+    cursor: enabled && !isRefreshing ? 'pointer' : 'not-allowed',
+    opacity: enabled && !isRefreshing ? 1 : 0.3,
+  });
+
+  function goWeek(dateStr) { if (dateStr && !isRefreshing) setStartDate(dateStr); }
 
   // Lijst: blocks sorted by day order then time, filtered by genre
   const dayOrder = Object.fromEntries(DAYS.map((d, i) => [d, i]));
@@ -152,8 +177,8 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
           </div>
         </div>
 
-        {/* Filter chips ─────────── */}
-        <div className="chips">
+        {/* Genre chips — wrapping, rooster/lijst toggle pinned to its own row */}
+        <div className="chips" style={{flexWrap:'wrap', rowGap:6}}>
           {genreChips.map(g => (
             <button key={g}
                     className={"chip" + (genre === g ? ' is-active' : '')}
@@ -161,8 +186,7 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
               {g}
             </button>
           ))}
-          <span style={{flex:1}}/>
-          <div style={{display:'flex'}}>
+          <div style={{width:'100%', display:'flex', justifyContent:'flex-end', marginTop:2}}>
             {['rooster','lijst'].map(v => (
               <button key={v}
                       className={"chip" + (view === v ? ' is-active' : '')}
@@ -175,6 +199,27 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
       </section>
 
       <main className="shell" data-screen-label="02 Programmas — Content" style={{paddingTop:0}}>
+
+        {/* Week navigation — shared for both rooster and lijst ───────── */}
+        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between',
+                     borderTop:'1px solid var(--ink)', background:'var(--ink)', color:'var(--paper)',
+                     padding:'4px 8px'}}>
+          <button style={navBtnStyle(!!nav?.prevweekmondaystr)}
+                  onClick={() => goWeek(nav?.prevweekmondaystr)}>
+            «
+          </button>
+          <span style={{fontSize:11, opacity: isRefreshing ? 0.4 : 0.55,
+                        letterSpacing:'0.08em', textTransform:'uppercase', transition:'opacity 0.15s'}}>
+            {weekLabel}
+          </span>
+          <button style={navBtnStyle(!!nav?.nextweekmondaystr)}
+                  onClick={() => goWeek(nav?.nextweekmondaystr)}>
+            »
+          </button>
+        </div>
+
+        {/* Content fades slightly while a new week is loading ───────── */}
+        <div style={{opacity: isRefreshing ? 0.45 : 1, transition:'opacity 0.15s', pointerEvents: isRefreshing ? 'none' : 'auto'}}>
 
         {/* Lijst view ─────────────────────────────────────── */}
         {view === 'lijst' && (
@@ -214,10 +259,15 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
             });
           });
           return (
-            <div className="tg-wrap" style={{borderTop:'1px solid var(--ink)'}}>
+            <div className="tg-wrap">
               <div className="tg">
                 <div className="h">/ tijd</div>
-                {DAYS.map(d => <div key={d} className="h day">{d}</div>)}
+                {DAYS.map(d => (
+                  <div key={d} className="h day">
+                    <span>{d}</span>
+                    {datesByDay?.[d] && <span style={{display:'block', fontSize:10, fontWeight:400, opacity:0.6, marginTop:2}}>{datesByDay[d]}</span>}
+                  </div>
+                ))}
                 {slots.map((slot, si) => {
                   const nextSlot = slots[si + 1];
                   return (
@@ -265,6 +315,8 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
             </div>
           );
         })()}
+
+        </div>{/* end opacity wrapper */}
 
         {/* Spotlight bar ─────────────────────────────────── */}
         <div style={{
