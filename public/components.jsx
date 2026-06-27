@@ -102,6 +102,7 @@ function TopNav({ route, navigate, playing, setPlaying, offLive, returnToLive })
         <a className="brand" onClick={() => navigate('home')} style={{cursor:'pointer'}}>
           <img src="assets/logo.png" alt="Radio Scorpio 106 FM"/>
         </a>
+        <div className="topnav-right">
         <nav>
           {items.map(([k, lbl]) => (
             <a key={k}
@@ -180,6 +181,7 @@ function TopNav({ route, navigate, playing, setPlaying, offLive, returnToLive })
             })}
           </div>
         </div>
+        </div>{/* end topnav-right */}
       </div>
     </header>
   );
