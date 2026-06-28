@@ -24,6 +24,33 @@ function fmtSeconds(s) {
   return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
+// ─── Show social links ────────────────────────────────────────────────────
+
+function ShowLinks({ links }) {
+  if (!links) return null;
+  const items = [
+    links.email     && { key: 'email',     href: `mailto:${links.email}`, Icon: Ic.email,    label: 'E-mail' },
+    links.facebook  && { key: 'facebook',  href: links.facebook,          Icon: Ic.fb,       label: 'Facebook' },
+    links.instagram && { key: 'instagram', href: links.instagram,         Icon: Ic.ig,       label: 'Instagram' },
+    links.mixcloud  && { key: 'mixcloud',  href: links.mixcloud,          Icon: Ic.mixcloud, label: 'Mixcloud' },
+    links.website   && { key: 'website',   href: links.website,           Icon: Ic.globe,    label: 'Website' },
+  ].filter(Boolean);
+  if (!items.length) return null;
+  return (
+    <div className="od-show-links">
+      {items.map(({ key, href, Icon, label }) => (
+        <a key={key} href={href}
+           target={key === 'email' ? undefined : '_blank'}
+           rel={key === 'email' ? undefined : 'noopener noreferrer'}
+           className="ic od-show-link-ic"
+           title={label} aria-label={label}>
+          <Icon/>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 // ─── API hooks ────────────────────────────────────────────────────────────
 
 function useODShows() {
@@ -248,6 +275,7 @@ function ODEpisodes({ show, onOpen, onBack, pendingEpisodeId, onPendingResolved 
           }
         </div>
         <div className="info">
+          <ShowLinks links={show.links}/>
           <div>
             <div className="lbl">// Scorpio OD</div>
             <div className="artist" style={{ fontSize: 'clamp(34px,5.5vw,72px)' }}>{show.showName}</div>

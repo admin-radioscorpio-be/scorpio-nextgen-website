@@ -28,6 +28,8 @@ const Ic = {
   fb:     (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M9.4 3.4 C8 3.4 7.1 4.2 7.1 5.8 V12.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.3 7.4 H9.3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
   mixcloud:(p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><path d="M1.8 11 V8.4 a2.6 2.6 0 0 1 5.2 0 V11 M7 11 V6.8 a2.8 2.8 0 0 1 5.6 0 V11 L14.2 11" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   yt:     (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><rect x="1.6" y="4" width="12.8" height="8" rx="2.4" fill="none" stroke="currentColor" strokeWidth="1.3"/><path d="M6.7 6.4 L10.2 8 L6.7 9.6 Z" fill="currentColor"/></svg>,
+  email:  (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><rect x="2" y="4" width="12" height="9" rx="1" fill="none" stroke="currentColor" strokeWidth="1.4"/><path d="M2 5.5 L8 10 L14 5.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>,
+  globe:  (p) => <svg viewBox="0 0 16 16" className={"ic-svg "+(p.cls||"")} {...p}><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.4"/><path d="M8 2 C6.2 4.5 6.2 11.5 8 14 M8 2 C9.8 4.5 9.8 11.5 8 14" fill="none" stroke="currentColor" strokeWidth="1.4"/><path d="M2.3 6 H13.7 M2.3 10 H13.7" stroke="currentColor" strokeWidth="1.4"/></svg>,
 
 };
 
