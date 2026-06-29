@@ -84,8 +84,6 @@ function ALijst({ setRoute, navigate, hashParam }) {
   const editionNo = alEditionNo(ed.month);
   const covers    = normCovers(ed.highlights);
   const tracks    = normTracks(ed.tracks);
-  const topCovers = covers.slice(0, 3);
-  const botCovers = covers.slice(3, 6);
   const tones     = ['t-ink', 't-accent', 't-paper'];
   const half      = Math.ceil(tracks.length / 2);
   const cols      = [tracks.slice(0, half), tracks.slice(half)];
@@ -183,9 +181,9 @@ function ALijst({ setRoute, navigate, hashParam }) {
 
       <main className="shell" style={{paddingTop: 0}}>
 
-        {/* TOP COVERS ─────────────────────────────────────── */}
-        <div className="al-covers" data-screen-label="A-Lijst — Covers boven">
-          {topCovers.map((c, i) => Cover(c, i, 0))}
+        {/* COVERS — single row of 6 ───────────────────────── */}
+        <div className="al-covers al-covers--row" data-screen-label="A-Lijst — Covers">
+          {covers.map((c, i) => Cover(c, i, 0))}
         </div>
 
         {/* THE LIST ───────────────────────────────────────── */}
@@ -199,11 +197,6 @@ function ALijst({ setRoute, navigate, hashParam }) {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* BOTTOM COVERS ──────────────────────────────────── */}
-        <div className="al-covers" style={{marginTop:0, borderTop:'1px solid var(--rule)'}} data-screen-label="A-Lijst — Covers onder">
-          {botCovers.map((c, i) => Cover(c, i, 3))}
         </div>
 
         {/* ARCHIVE ────────────────────────────────────────── */}
