@@ -128,32 +128,6 @@ function TopNav({ route, navigate, playing, setPlaying, offLive, returnToLive })
               <span className="nav-live-lbl">{playing ? 'Live' : 'Luister'}</span>
             </button>
           )}
-           <div className="nav-menu" ref={menuRef}>
-            <button className={"ic" + (menuOpen ? ' is-active' : '')}
-                    aria-label={menuOpen ? 'Menu sluiten' : 'Meer'}
-                    aria-expanded={menuOpen}
-                    onClick={() => setMenuOpen(o => !o)}>
-              {menuOpen ? <Ic.close/> : <Ic.menu/>}
-            </button>
-            {menuOpen && (
-              <div className="nav-menu-pop" role="menu">
-                <div className="nav-menu-cap">Meer</div>
-                {overflow.map(([lbl, fn]) => (
-                  <a key={lbl} role="menuitem" onClick={fn}>{lbl}<span className="nav-menu-arr">→</span></a>
-                ))}
-                <div className="nav-menu-social">
-                  {SOCIALS.map(([label, icon, url]) => {
-                    const Icon = Ic[icon];
-                    return (
-                      <a key={label} href={url} target="_blank" rel="noopener noreferrer"
-                         aria-label={label} title={label}
-                         onClick={() => setMenuOpen(false)}><Icon/></a>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
           <form className={"nav-search" + (searchOpen ? ' is-open' : '')}
                 role="search" onSubmit={onSubmit}>
             <input ref={inputRef} className="nav-search-input" type="text"
@@ -180,6 +154,32 @@ function TopNav({ route, navigate, playing, setPlaying, offLive, returnToLive })
                    aria-label={label} title={label}><Icon/></a>
               );
             })}
+          </div>
+          <div className="nav-menu" ref={menuRef}>
+            <button className={"ic" + (menuOpen ? ' is-active' : '')}
+                    aria-label={menuOpen ? 'Menu sluiten' : 'Meer'}
+                    aria-expanded={menuOpen}
+                    onClick={() => setMenuOpen(o => !o)}>
+              {menuOpen ? <Ic.close/> : <Ic.menu/>}
+            </button>
+            {menuOpen && (
+              <div className="nav-menu-pop" role="menu">
+                <div className="nav-menu-cap">Meer</div>
+                {overflow.map(([lbl, fn]) => (
+                  <a key={lbl} role="menuitem" onClick={fn}>{lbl}<span className="nav-menu-arr">→</span></a>
+                ))}
+                <div className="nav-menu-social">
+                  {SOCIALS.map(([label, icon, url]) => {
+                    const Icon = Ic[icon];
+                    return (
+                      <a key={label} href={url} target="_blank" rel="noopener noreferrer"
+                         aria-label={label} title={label}
+                         onClick={() => setMenuOpen(false)}><Icon/></a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
