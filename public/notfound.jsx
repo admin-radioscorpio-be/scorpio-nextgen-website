@@ -36,7 +36,7 @@ function NotFound({ navigate }) {
             marginBottom: 40,
           }}>
             We leveren 168 uur radio per week, twintig-plus stemmen en een archief
-            vol niche. Maar de pagina die je zocht bestaat niet — of toch niet meer.
+            vol niche. Maar de pagina die je zocht bestaat niet — of toch niet meer. 
           </p>
           <button className="play-cta" onClick={() => navigate('home')}>
             <span className="ico"><Ic.arrow/></span>
