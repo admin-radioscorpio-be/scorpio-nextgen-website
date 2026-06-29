@@ -301,9 +301,6 @@ function ODEpisodes({ show, onOpen, onBack, pendingEpisodeId, onPendingResolved 
               {show.episodeCount} afleveringen
               {show.lastEpisodeDate ? ` · laatste: ${fmtOdDate(show.lastEpisodeDate)}` : ''}
             </div>
-            {show.description && (
-              <p className="od-detail-desc" style={{ whiteSpace: 'pre-line' }}>{show.description}</p>
-            )}
           </div>
           {show.tags?.length > 0 && (
             <div className="row" style={{ flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
@@ -318,6 +315,9 @@ function ODEpisodes({ show, onOpen, onBack, pendingEpisodeId, onPendingResolved 
       </div>
 
       <main className="shell" style={{ paddingTop: 0, paddingBottom: 64 }}>
+        {show.description && (
+          <p className="od-detail-desc" style={{ whiteSpace: 'pre-line', paddingTop: 24, paddingBottom: 0 }}>{show.description}</p>
+        )}
         <div className="od-eptools">
           <span className="od-eptools-lbl">Afleveringen · nieuwste eerst</span>
           <label className="od-select">
@@ -398,7 +398,6 @@ function ODDetail({ episode, show, onBack, onPlay, isCurrent }) {
             <div className="title" style={{ marginTop: 12 }}>
               {show.showName} · {fmtOdDate(episode.episodeDate)}
             </div>
-            {episode.description && <p className="od-detail-desc" style={{whiteSpace:'pre-line'}}>{episode.description}</p>}
           </div>
         </div>
         <div className="od-detail-action">
@@ -409,7 +408,10 @@ function ODDetail({ episode, show, onBack, onPlay, isCurrent }) {
         </div>
       </div>
 
-      <main className="shell" style={{ paddingTop: 48 }}>
+      <main className="shell" style={{ paddingTop: 0 }}>
+        {episode.description && (
+          <p className="od-detail-desc" style={{ whiteSpace: 'pre-line', paddingTop: 24, paddingBottom: 32 }}>{episode.description}</p>
+        )}
         {trackLoading && (
           <div style={{ padding: '32px 0', color: 'var(--mute)' }}>Playlist laden…</div>
         )}
