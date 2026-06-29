@@ -103,17 +103,16 @@ img { display: block; max-width: 100%; }
   border-bottom: var(--hair) solid var(--rule);
 }
 .topnav .inner {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
   gap: 24px;
   padding: 14px 24px;
   max-width: 1440px;
   margin: 0 auto;
 }
-.topnav .brand { display: flex; align-items: center; gap: 10px; }
+.topnav .brand { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; }
 .topnav .brand img { height: 28px; width: auto; }
-.topnav nav { display: flex; gap: 2px; justify-self: center; }
+.topnav nav { flex: 1; display: flex; gap: 2px; justify-content: center; }
 .topnav nav a {
   padding: 8px 14px;
   font-family: "JetBrains Mono", monospace;
@@ -129,7 +128,7 @@ img { display: block; max-width: 100%; }
 .topnav nav a.is-active {
   background: var(--ink); color: var(--paper);
 }
-.topnav .util { display: flex; gap: 8px; align-items: center; }
+.topnav .util { flex: 0 0 auto; display: flex; gap: 8px; align-items: center; }
 .topnav .util .ic {
   width: 32px; height: 32px;
   display: grid; place-items: center;
@@ -1397,6 +1396,7 @@ html { overflow-x: clip; }
 
   /* ---- TOP NAV: brand + utils on row 1, nav wraps onto multiple rows - */
   .topnav .inner {
+    display: grid;
     grid-template-columns: auto 1fr;
     grid-template-areas:
       "brand util"
