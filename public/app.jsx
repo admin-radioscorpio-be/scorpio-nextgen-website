@@ -142,7 +142,7 @@ function NotFound({ navigate }) {
             We hebben 168 uur radio per week, twintig-plus stemmen en een archief
             vol niche. Maar de pagina die je zocht bestaat niet — of toch niet meer.
           </p>
-          <button className="play-cta" onClick={() => navigate('home')}>
+          <button className="play-cta filled" onClick={() => navigate('home')}>
             <span className="ico"><Ic.arrow/></span>
             Terug naar home
           </button>
