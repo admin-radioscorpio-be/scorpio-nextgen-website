@@ -69,6 +69,8 @@ function App() {
     if (window.location.hash !== hash) window.location.hash = hash;
     setRoute(page);
     setHashParam(param);
+    const trackPath = param ? `/${page}/${param}` : `/${page}`;
+    if (window.__cfBeacon) window.__cfBeacon.push({ type: 'spa', path: trackPath });
   }, []);
 
   const Page = { home: Home, programmas: Programmas, playlist: Playlist, ondemand: OnDemand, alijst: ALijst,
