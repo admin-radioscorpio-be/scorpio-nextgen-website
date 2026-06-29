@@ -549,7 +549,7 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
         </div>
 
         {view === 'shows' && (
-          <div className="chips">
+          <div className="chips" style={{flexWrap:'wrap', rowGap:6}}>
             {allTags.map(g => (
               <button key={g} className={'chip' + (tag === g ? ' is-active' : '')}
                       onClick={() => setTag(g)}>{g}</button>
