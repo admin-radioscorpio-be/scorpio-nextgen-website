@@ -139,7 +139,7 @@ function NotFound({ navigate }) {
             fontSize:'clamp(18px, 2.5vw, 26px)',
             fontWeight:500, lineHeight:1.45, marginBottom:40,
           }}>
-            We hebben 168 uur radio per week, twintig-plus stemmen en een archief
+            We leveren 168 uur radio per week, twintig-plus stemmen en een archief
             vol niche. Maar de pagina die je zocht bestaat niet — of toch niet meer.
           </p>
           <button className="play-cta filled" onClick={() => navigate('home')}>
