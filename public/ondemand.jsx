@@ -24,6 +24,22 @@ function fmtSeconds(s) {
   return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
+// ─── Cover art square-vs-rect detection ──────────────────────────────────
+
+function useCoverArtType(ref, src) {
+  React.useEffect(() => {
+    if (!ref.current || !src) return;
+    const img = ref.current.querySelector('img');
+    if (!img) return;
+    const apply = () => {
+      const ratio = img.naturalWidth / img.naturalHeight;
+      ref.current.setAttribute('data-art', ratio < 0.9 ? 'rect' : 'square');
+    };
+    if (img.complete && img.naturalWidth > 0) apply();
+    else img.addEventListener('load', apply);
+  }, [src]);
+}
+
 // ─── Show social links ────────────────────────────────────────────────────
 
 function ShowLinks({ links }) {
@@ -228,6 +244,8 @@ function ODEpisodes({ show, onOpen, onBack, pendingEpisodeId, onPendingResolved 
   const { episodes, loading, error, nextCursor, loadMore, loadingMore } = useODEpisodes(show.showid, season);
   const sentinel              = React.useRef(null);
   const loadMoreRef           = React.useRef(loadMore);
+  const coverRef              = React.useRef(null);
+  useCoverArtType(coverRef, show.imageURL);
 
   // Auto-select episode from deep link: keep paginating until found
   React.useEffect(() => {
@@ -267,7 +285,7 @@ function ODEpisodes({ show, onOpen, onBack, pendingEpisodeId, onPendingResolved 
       </div>
 
       <div className="now-big od-show" style={{ maxWidth: 1440, margin: '0 auto' }}>
-        <div className="cover">
+        <div className="cover" ref={coverRef}>
           {show.imageURL
             ? <img src={show.imageURL} alt={show.showName}
                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
@@ -356,6 +374,8 @@ function ODEpisodes({ show, onOpen, onBack, pendingEpisodeId, onPendingResolved 
 // ─── Episode detail + tracklist ───────────────────────────────────────────
 function ODDetail({ episode, show, onBack, onPlay, isCurrent }) {
   const { items, loading: trackLoading } = useODTracklist(episode);
+  const coverRef = React.useRef(null);
+  useCoverArtType(coverRef, episode.imageURL);
 
   return (
     <section data-screen-label="OD — Episode detail">
@@ -364,7 +384,7 @@ function ODDetail({ episode, show, onBack, onPlay, isCurrent }) {
       </div>
 
       <div className="now-big od-detail" style={{ maxWidth: 1440, margin: '0 auto' }}>
-        <div className="cover">
+        <div className="cover" ref={coverRef}>
           {episode.imageURL
             ? <img src={episode.imageURL} alt={episode.title}
                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>

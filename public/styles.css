@@ -1216,9 +1216,35 @@ img { display: block; max-width: 100%; }
   grid-template-columns: 280px 1fr 320px;
 }
 .now-big.od-detail::before { content: "OD"; font-size: 420px; right: 40px; }
-.now-big.od-detail .cover { aspect-ratio: unset; }
 .now-big.od-show::before { content: "OD"; font-size: 420px; right: 40px; }
-.now-big.od-show .cover { aspect-ratio: unset; }
+
+/* Square-vs-rect artwork: detect via data-art attribute set by useCoverArtType */
+.now-big.od-detail .cover,
+.now-big.od-show .cover {
+  aspect-ratio: unset;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+.now-big.od-detail .cover[data-art="square"],
+.now-big.od-show .cover[data-art="square"] {
+  background: var(--accent);
+}
+.now-big.od-detail .cover[data-art="square"] img,
+.now-big.od-show .cover[data-art="square"] img {
+  width: 100%;
+  height: auto;
+  max-height: 278px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+.now-big.od-detail .cover[data-art="rect"] img,
+.now-big.od-show .cover[data-art="rect"] img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .now-big.now-live .cover { aspect-ratio: unset; }
 .od-detail .info { padding-top: 30px; padding-bottom: 30px; }
 /* Show social links — top-right corner of .info */
