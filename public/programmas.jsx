@@ -226,8 +226,8 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
           <div style={{borderTop:'1px solid var(--ink)'}}>
             {listBlocks.map((p, i) => (
               <div key={p.id} className="prog-row"
-                   style={{cursor: p.isNonstop ? 'default' : 'pointer'}}
-                   onClick={() => !p.isNonstop && goToOD(p.showid)}>
+                   style={{cursor: 'pointer'}}
+                   onClick={() => goToOD(p.showid)}>
                 <span className="day">{p.day}</span>
                 <span className="time">{p.time}</span>
                 <div>
@@ -290,7 +290,7 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
                           <div key={d} className="cell"
                                title={parentBlock ? `${parentBlock.name} · ${parentBlock.start}–${parentBlock.end}` : ''}
                                style={{
-                                 cursor: parentBlock && !parentBlock.isNonstop ? 'pointer' : 'default',
+                                 cursor: parentBlock ? 'pointer' : 'default',
                                  ...(nextIsCont ? {borderBottom:'none'} : {}),
                                  ...(isHovered  ? {background:'var(--ink)', color:'var(--accent)'} : {}),
                                  ...(!isHovered && isMatch ? {background:'var(--accent)', color:'var(--ink)'} : {}),
@@ -298,7 +298,7 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
                                }}
                                onMouseEnter={() => groupKey && setHovered(groupKey)}
                                onMouseLeave={() => setHovered(null)}
-                               onClick={() => parentBlock && !parentBlock.isNonstop && goToOD(parentBlock.showid)}>
+                               onClick={() => parentBlock && goToOD(parentBlock.showid)}>
                             {isCont
                               ? null
                               : parentBlock
