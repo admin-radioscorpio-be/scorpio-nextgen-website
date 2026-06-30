@@ -226,7 +226,7 @@ function useNowPlaying() {
           const cur = msg.data?.currentshow;
           const nxt = msg.data?.upcomingshow;
           if (cur) setShow({ name: cur.showName, start: cur.startClock, end: cur.endClock });
-          if (nxt) setUpcoming({ name: nxt.showName, start: nxt.startClock });
+          if (nxt) setUpcoming({ name: nxt.showName, start: nxt.startClock, end: nxt.endClock });
         }
       };
 
@@ -319,10 +319,22 @@ function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessi
 
   const activeBar  = Math.floor(progress * bars.length);
   const trackLabel = track?.title ?? '—';
-  const showLabel  = show ? `Nu: ${show.name} · ${show.start}–${show.end}` : 'Nu: —';
-  const nextLabel  = upcoming
-    ? <span>Straks <b>{upcoming.start} {upcoming.name}</b></span>
-    : <span>Straks —</span>;
+
+  // Alternate between nu: and straks: labels
+  const [showNext, setShowNext] = React.useState(false);
+  const [labelVisible, setLabelVisible] = React.useState(true);
+  React.useEffect(() => {
+    if (!upcoming) { setShowNext(false); return; }
+    const t = setInterval(() => {
+      setLabelVisible(false);
+      setTimeout(() => { setShowNext(p => !p); setLabelVisible(true); }, 350);
+    }, 4000);
+    return () => clearInterval(t);
+  }, [!!upcoming]);
+
+  const schedLabel = (showNext && upcoming)
+    ? <><span style={{opacity:0.55}}>straks:</span> {upcoming.name} · {upcoming.start}{upcoming.end ? `–${upcoming.end}` : ''}</>
+    : <><span style={{opacity:0.55}}>nu:</span> {show ? `${show.name} · ${show.start}–${show.end}` : '—'}</>;
 
   // Mixcloud widget URL — dark=1 matches our dark player background
   const mixcloudSrc = isSession
@@ -356,7 +368,7 @@ function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessi
             <div>
               <div className="live"><span className="dot pulse"/> Live · 106 FM</div>
               <div className="track">{trackLabel}</div>
-              <div className="show">{showLabel}</div>
+              <div className="show" style={{opacity: labelVisible ? 1 : 0, transition: 'opacity 0.35s'}}>{schedLabel}</div>
             </div>
           </>
         )}
@@ -394,15 +406,7 @@ function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessi
           }}>
             ← Terug live
           </button>
-        ) : (
-          <>
-            <div className="nextup">{nextLabel}</div>
-            <div className="vol">
-              <Ic.vol/>
-              <input type="range" min="0" max="100" value={vol} onChange={e => setVol(+e.target.value)} />
-            </div>
-          </>
-        )}
+        ) : null}
       </div>
     </footer>
   );
