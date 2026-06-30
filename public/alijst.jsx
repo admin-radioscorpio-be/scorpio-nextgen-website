@@ -50,8 +50,22 @@ function ALijst({ setRoute, navigate, hashParam }) {
     return () => { cancelled = true; };
   }, []);
 
+  // Sync edId when browser back/forward or top-nav menu click changes the hash
+  const selfNav = React.useRef(false);
+  React.useEffect(() => {
+    if (!editions.length) return;
+    if (selfNav.current) { selfNav.current = false; return; }
+    if (!hashParam) {
+      setEdId(editions[0]?.id ?? null);
+    } else {
+      const match = editions.find(e => String(e.id) === String(hashParam));
+      if (match) setEdId(match.id);
+    }
+  }, [hashParam]);
+
   const listRef = React.useRef(null);
   const go = (id, scrollToList) => {
+    selfNav.current = true;
     setEdId(id);
     navigate('alijst', id);
     if (scrollToList && listRef.current) {

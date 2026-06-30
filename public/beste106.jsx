@@ -52,15 +52,22 @@ function useBeste106(initialParam) {
 function Beste106({ navigate, hashParam }) {
   const { lists, currentId, setCurrentId, edition, listsLoading, edLoading, error } = useBeste106(hashParam);
 
-  // Sync when browser back/forward changes the hash
+  // Sync when browser back/forward or top-nav menu click changes the hash
+  const selfNav = React.useRef(false);
   React.useEffect(() => {
-    if (!hashParam || !lists.length) return;
-    const match = lists.find(l => String(l.id) === String(hashParam));
-    if (match && match.id !== currentId) setCurrentId(match.id);
-  }, [hashParam, lists]);
+    if (!lists.length) return;
+    if (selfNav.current) { selfNav.current = false; return; }
+    if (!hashParam) {
+      setCurrentId(lists[0]?.id ?? null);
+    } else {
+      const match = lists.find(l => String(l.id) === String(hashParam));
+      if (match && match.id !== currentId) setCurrentId(match.id);
+    }
+  }, [hashParam]);
 
   const listRef = React.useRef(null);
   const go = (id, scrollToList) => {
+    selfNav.current = true;
     setCurrentId(id);
     navigate('beste106', String(id));
     if (scrollToList && listRef.current) {

@@ -477,15 +477,24 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
   const [pendingEpisodeId, setPendingEpisodeId] = React.useState(null);
   const { shows, loading, error }        = useODShows();
 
-  // On mount: parse hash deep-link (e.g. "#/ondemand/42" or "#/ondemand/42/1337")
+  // navSelf: internal navigation — marks the hash change as self-initiated
+  // so the hashParam effect below ignores it (prevents update loops).
+  const selfNav = React.useRef(false);
+  const navSelf = (page, param) => { selfNav.current = true; navigate(page, param); };
+
+  // React to hashParam changes: browser back/forward and top-nav menu clicks.
+  // Ignored when the change was caused by this component itself (selfNav flag).
   React.useEffect(() => {
-    if (!hashParam) return;
-    const parts = hashParam.split('/');
-    const showid = Number(parts[0]);
-    if (!showid) return;
-    const episodeid = parts[1] ? Number(parts[1]) : null;
-    setOdTarget({ showid, episodeid });
-  }, []);
+    if (selfNav.current) { selfNav.current = false; return; }
+    if (!hashParam) {
+      // top-nav "On demand" clicked, or back to root — reset to shows list
+      setView('shows'); setShow(null); setEpisode(null); setPendingEpisodeId(null);
+    } else {
+      const parts = hashParam.split('/');
+      const showid = Number(parts[0]);
+      if (showid) setOdTarget({ showid, episodeid: parts[1] ? Number(parts[1]) : null });
+    }
+  }, [hashParam]);
 
   // Collect all unique tags from loaded shows for the filter chips
   const allTags = React.useMemo(() => {
@@ -509,13 +518,13 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
   const openShow = (s) => {
     setShow(s);
     setView('episodes');
-    navigate('ondemand', String(s.showid));
+    navSelf('ondemand', String(s.showid));
     window.scrollTo({ top: 0 });
   };
   const openEp = (ep) => {
     setEpisode(ep);
     setView('detail');
-    navigate('ondemand', `${show.showid}/${ep.id}`);
+    navSelf('ondemand', `${show.showid}/${ep.id}`);
     window.scrollTo({ top: 0 });
   };
 
@@ -569,12 +578,12 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
         <ODEpisodes show={show} onOpen={openEp}
                     pendingEpisodeId={pendingEpisodeId}
                     onPendingResolved={() => setPendingEpisodeId(null)}
-                    onBack={() => { setView('shows'); navigate('ondemand'); }}/>
+                    onBack={() => { setView('shows'); navSelf('ondemand'); }}/>
       )}
 
       {view === 'detail' && episode && show && (
         <ODDetail episode={episode} show={show}
-                  onBack={() => { setView('episodes'); navigate('ondemand', String(show.showid)); }}
+                  onBack={() => { setView('episodes'); navSelf('ondemand', String(show.showid)); }}
                   onPlay={play}
                   isCurrent={!!episode.mixcloudURL && sessionFeed?.feed === mixcloudFeed(episode.mixcloudURL)}/>
       )}

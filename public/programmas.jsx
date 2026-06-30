@@ -110,16 +110,15 @@ function useSchedule(startDate) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-function Programmas({ setRoute, navigate, setOdTarget }) {
+function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
   const [genre, setGenre]           = React.useState('Alles');
   const [view, setView]             = React.useState('lijst');
   const [hoveredGroup, setHovered]  = React.useState(null);
-  const [startDate, setStartDate]   = React.useState(null);
+  const [startDate, setStartDate]   = React.useState(hashParam || null);
   const { schedule, loading, error } = useSchedule(startDate);
 
   function goToOD(showid) {
-    setOdTarget({ showid });
-    navigate('ondemand');
+    navigate('ondemand', String(showid));
   }
 
   // Only show full-page spinner on the very first load (no data yet)
@@ -150,7 +149,12 @@ function Programmas({ setRoute, navigate, setOdTarget }) {
     opacity: enabled && !isRefreshing ? 1 : 0.3,
   });
 
-  function goWeek(dateStr) { if (dateStr && !isRefreshing) setStartDate(dateStr); }
+  function goWeek(dateStr) {
+    if (dateStr && !isRefreshing) {
+      setStartDate(dateStr);
+      navigate('programmas', dateStr);
+    }
+  }
 
   // Lijst: blocks sorted by day order then time, filtered by genre
   const dayOrder = Object.fromEntries(DAYS.map((d, i) => [d, i]));
