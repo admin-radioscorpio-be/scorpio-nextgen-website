@@ -117,6 +117,12 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
   const [startDate, setStartDate]   = React.useState(hashParam || null);
   const { schedule, loading, error } = useSchedule(startDate);
 
+  // Sync startDate when browser back/forward changes hashParam
+  // Must be before any early returns to satisfy React's rules of hooks
+  React.useEffect(() => {
+    setStartDate(hashParam || null);
+  }, [hashParam]);
+
   function goToOD(showid) {
     navigate('ondemand', String(showid));
   }
@@ -149,19 +155,13 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
     opacity: enabled && !isRefreshing ? 1 : 0.3,
   });
 
-  const selfNav = React.useRef(false);
   function goWeek(dateStr) {
     if (dateStr && !isRefreshing) {
-      selfNav.current = true;
       setStartDate(dateStr);
-      navigate('programmas', dateStr);
+      const newHash = `#/programmas/${dateStr}`;
+      if (window.location.hash !== newHash) history.pushState(null, '', newHash);
     }
   }
-
-  React.useEffect(() => {
-    if (selfNav.current) { selfNav.current = false; return; }
-    setStartDate(hashParam || null);
-  }, [hashParam]);
 
   // Lijst: blocks sorted by day order then time, filtered by genre
   const dayOrder = Object.fromEntries(DAYS.map((d, i) => [d, i]));
