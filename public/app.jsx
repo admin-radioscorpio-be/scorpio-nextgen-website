@@ -19,6 +19,22 @@ function buildHash(page, param) {
   return param ? `#/${page}/${param}` : `#/${page}`;
 }
 
+const GA_TITLES = {
+  home: 'Home', programmas: "Programma's", ondemand: 'On Demand', playlist: 'Playlist',
+  alijst: 'A-Lijst', beste106: 'Beste 106', vrijwilliger: 'Vrijwilliger worden',
+  wiezijnwij: 'Wie zijn wij', colofon: 'Colofon', steun: 'Steun ons',
+  logos: "Logo's", cookies: 'Cookiebeleid', search: 'Zoeken', notfound: 'Niet gevonden',
+};
+
+function gaPageView(page, param) {
+  if (!window.gtag) return;
+  window.gtag('event', 'page_view', {
+    page_path: param ? `/${page}/${param}` : `/${page}`,
+    page_title: GA_TITLES[page] || page,
+    page_location: window.location.href,
+  });
+}
+
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const init = React.useMemo(() => window.__FORCE_ROUTE__
@@ -63,12 +79,36 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  // Track landing page on mount
+  React.useEffect(() => { gaPageView(init.page, init.param); }, []);
+
+  // Track live stream play (playing turns on while no episode session is active)
+  const prevPlaying = React.useRef(false);
+  React.useEffect(() => {
+    if (playing && !prevPlaying.current && !sessionFeed && !odNow) {
+      if (window.gtag) window.gtag('event', 'live_stream_play', { event_category: 'Audio' });
+    }
+    prevPlaying.current = playing;
+  }, [playing]);
+
+  // Track episode plays
+  React.useEffect(() => {
+    if (!sessionFeed) return;
+    if (window.gtag) window.gtag('event', 'episode_play', {
+      event_category: 'Audio',
+      event_label: sessionFeed.showName
+        ? `${sessionFeed.showName} — ${sessionFeed.title}`
+        : sessionFeed.title,
+    });
+  }, [sessionFeed]);
+
   const navigate = React.useCallback(function(page, param) {
     param = param ?? null;
     const hash = buildHash(page, param);
     if (window.location.hash !== hash) window.location.hash = hash;
     setRoute(page);
     setHashParam(param);
+    gaPageView(page, param);
   }, []);
 
   const Page = { home: Home, programmas: Programmas, playlist: Playlist, ondemand: OnDemand, alijst: ALijst,

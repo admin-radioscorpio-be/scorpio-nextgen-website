@@ -14,6 +14,14 @@
   <link rel="stylesheet" href="/styles.css"/>
   <link rel="icon" href="/favicon.ico" sizes="any"/>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+  <!-- GA4 cookieless -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-24S74GYS8J"></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-24S74GYS8J', { client_storage: 'none', anonymize_ip: true, send_page_view: false });
+  </script>
   <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "4fc7f960d6ed4dd18f3c206380c11b5b", "spa": true}'></script>
 
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
