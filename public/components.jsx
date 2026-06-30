@@ -516,7 +516,7 @@ function Footer() {
           </div>
         </div>
         <div className="bot">
-          <span>© 1980—2026 Radio Scorpio VZW · Leuven</span>
+          <span>© 1979—2026 Radio Scorpio VZW · Leuven</span>
           <a href="#/cookies" style={{cursor:'pointer'}}>Cookiebeleid</a>
         </div>
       </div>

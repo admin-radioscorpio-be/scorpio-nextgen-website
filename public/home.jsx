@@ -72,7 +72,7 @@ function Home({ setRoute, playing, setPlaying, nowPlaying }) {
               </h1>   
             <div className="meta">
               <div>
-                <b>Sinds 1980</b>
+                <b>Sinds 1979</b>
                 <span>Vrijwilligersradio Leuven</span>
               </div>
               <div>
