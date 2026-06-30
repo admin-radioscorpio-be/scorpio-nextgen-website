@@ -33,6 +33,7 @@ function gaPageView(page, param) {
     page_title: GA_TITLES[page] || page,
     page_location: window.location.href,
   });
+  window.gtag('event', 'conversion', { send_to: 'AW-670065704/x0zoCN7aj-UBEKjIwb8C' });
 }
 
 function App() {
