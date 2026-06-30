@@ -149,12 +149,19 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
     opacity: enabled && !isRefreshing ? 1 : 0.3,
   });
 
+  const selfNav = React.useRef(false);
   function goWeek(dateStr) {
     if (dateStr && !isRefreshing) {
+      selfNav.current = true;
       setStartDate(dateStr);
       navigate('programmas', dateStr);
     }
   }
+
+  React.useEffect(() => {
+    if (selfNav.current) { selfNav.current = false; return; }
+    setStartDate(hashParam || null);
+  }, [hashParam]);
 
   // Lijst: blocks sorted by day order then time, filtered by genre
   const dayOrder = Object.fromEntries(DAYS.map((d, i) => [d, i]));
