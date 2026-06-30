@@ -22,5 +22,11 @@
 		{
 			"binding": "LOADER",
 		},
-	]
+	],
+		"routes": [
+		{
+			"pattern": "www.radioscorpio.be",
+			"custom_domain": true
+		}
+		]
 }
