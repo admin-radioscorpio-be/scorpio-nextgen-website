@@ -281,7 +281,7 @@ function ODEpisodes({ show, onOpen, onBack, pendingEpisodeId, onPendingResolved 
   return (
     <section data-screen-label="OD — Episodes">
       <div className="od-subhead">
-        <button className="od-back" onClick={onBack}>← Alle shows</button>
+        <button className="od-back" onClick={onBack}>← Alle programma's</button>
       </div>
 
       <div className="now-big od-show" style={{ maxWidth: 1440, margin: '0 auto' }}>
