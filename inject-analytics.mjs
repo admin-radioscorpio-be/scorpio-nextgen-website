@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 
 const GA4 = `<script async src="https://www.googletagmanager.com/gtag/js?id=G-24S74GYS8J"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-24S74GYS8J',{client_storage:'none',anonymize_ip:true,send_page_view:false});gtag('config','AW-670065704');</script>`;
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-24S74GYS8J',{client_storage:'none',anonymize_ip:true,send_page_view:false});</script>`;
 
 const BEACON = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "4fc7f960d6ed4dd18f3c206380c11b5b", "spa": true}'></script>`;
 
