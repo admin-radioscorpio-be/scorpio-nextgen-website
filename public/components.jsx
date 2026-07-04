@@ -342,7 +342,7 @@ function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessi
     : null;
 
   return (
-    <footer className="player">
+    <footer className={`player${isSession ? ' is-session' : ''}`}>
       {/* ── Left ── */}
       <div className="left">
         {!isSession && (
@@ -380,7 +380,7 @@ function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessi
           <iframe
             key={sessionFeed.feed}
             src={mixcloudSrc}
-            allow="autoplay"
+            allow="autoplay; encrypted-media"
             style={{ width: '100%', height: 60, border: 'none', display: 'block' }}
             title="Mixcloud player"
           />

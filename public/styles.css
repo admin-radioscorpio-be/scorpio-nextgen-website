@@ -1617,7 +1617,22 @@ html { overflow-x: clip; }
     min-height: 60px;
     padding: 9px 14px;
   }
-  .player .center { display: none; }       /* hide waveform */
+  .player .center { display: none; }       /* hide waveform on mobile */
+
+  /* session mode: show Mixcloud iframe in a second full-width row */
+  .player.is-session {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "left right"
+      "center center";
+    row-gap: 6px;
+  }
+  .player.is-session .left  { grid-area: left; }
+  .player.is-session .right { grid-area: right; }
+  .player.is-session .center {
+    display: block;
+    grid-area: center;
+  }
   .player .right .nextup { display: none; }
   .player .right .vol { display: none; }
   .player .left .show { display: none; }
