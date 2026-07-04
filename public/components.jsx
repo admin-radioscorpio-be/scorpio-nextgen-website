@@ -257,9 +257,29 @@ function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessi
   );
   const [progress, setProgress] = React.useState(0.42);
   const audioRef = React.useRef(null);
+  const iframeRef = React.useRef(null);
   const { track, show, upcoming } = nowPlaying;
 
   const isSession = !!sessionFeed;
+
+  // Load the Mixcloud Widget API once
+  React.useEffect(() => {
+    if (window.Mixcloud || document.querySelector('script[src*="widgetApi"]')) return;
+    const s = document.createElement('script');
+    s.src = 'https://widget.mixcloud.com/media/js/widgetApi.js';
+    document.head.appendChild(s);
+  }, []);
+
+  // When a new episode session starts, use Widget API to force play on mobile
+  React.useEffect(() => {
+    if (!sessionFeed) return;
+    const t = setTimeout(() => {
+      if (!window.Mixcloud || !iframeRef.current) return;
+      const widget = window.Mixcloud.PlayerWidget(iframeRef.current);
+      widget.ready.then(() => widget.play());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [sessionFeed?.feed]);
 
   // Create the live audio element once
   React.useEffect(() => {
@@ -378,6 +398,7 @@ function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessi
       <div className="center">
         {isSession ? (
           <iframe
+            ref={iframeRef}
             key={sessionFeed.feed}
             src={mixcloudSrc}
             allow="autoplay; encrypted-media"
