@@ -1,11 +1,12 @@
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
-import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
-import { formsPlugin } from "@emdash-cms/plugin-forms";
-import webhookNotifier from "@emdash-cms/plugin-webhook-notifier";
-import { google } from "emdash/auth/providers/google";
 import { defineConfig, fontProviders } from "astro/config";
-import emdash from "emdash/astro";
+
+// To add EmDash CMS back:
+// 1. npm install emdash @emdash-cms/cloudflare @emdash-cms/plugin-forms
+// 2. Import: import emdash from "emdash/astro"; import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
+// 3. Add to integrations: emdash({ database: d1({ binding: "DB" }), storage: r2({ binding: "MEDIA" }), ... })
+// 4. Restore D1 + R2 + worker_loaders bindings in wrangler.jsonc
 
 export default defineConfig({
 	output: "server",
@@ -16,15 +17,6 @@ export default defineConfig({
 	},
 	integrations: [
 		react(),
-		emdash({
-			database: d1({ binding: "DB", session: "auto" }),
-			authProviders: [google()],
-			storage: r2({ binding: "MEDIA" }),
-			plugins: [formsPlugin()],
-			sandboxed: [webhookNotifier],
-			sandboxRunner: sandbox(),
-			marketplace: "https://marketplace.emdashcms.com",
-		}),
 	],
 	fonts: [
 		{
