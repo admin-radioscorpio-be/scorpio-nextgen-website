@@ -247,7 +247,7 @@ function useNowPlaying() {
   return { track, show, upcoming };
 }
 
-function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessionFeed, odNow, onClearOd }) {
+function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessionFeed, odNow, onClearOd, mixcloudWidgetRef }) {
   if (odNow) return <ODPlayer odNow={odNow} playing={playing} setPlaying={setPlaying}
                               accent={accent} onClearOd={onClearOd}/>;
 
@@ -276,7 +276,11 @@ function Player({ playing, setPlaying, accent, nowPlaying, sessionFeed, setSessi
     const t = setTimeout(() => {
       if (!window.Mixcloud || !iframeRef.current) return;
       const widget = window.Mixcloud.PlayerWidget(iframeRef.current);
-      widget.ready.then(() => widget.play());
+      if (mixcloudWidgetRef) mixcloudWidgetRef.current = widget;
+      widget.ready.then(() => {
+        widget.play();
+        if (sessionFeed.startSeconds) widget.seek(sessionFeed.startSeconds);
+      });
     }, 300);
     return () => clearTimeout(t);
   }, [sessionFeed?.feed]);

@@ -488,6 +488,7 @@ img { display: block; max-width: 100%; }
   transition: background 100ms;
 }
 .pl-row:hover { background: var(--ink); color: var(--paper); }
+.pl-row.od-track-row { cursor: pointer; }
 .pl-row.now { background: var(--accent); color: var(--ink); position: relative; }
 .pl-row.now::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;

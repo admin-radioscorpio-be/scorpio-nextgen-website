@@ -47,6 +47,7 @@ function App() {
   const [odNow, setOdNow] = React.useState(null);
   const [odTarget, setOdTarget] = React.useState(null);
   const nowPlaying = useNowPlaying();
+  const mixcloudWidgetRef = React.useRef(null);
 
   const style = {
     '--accent': t.accent,
@@ -126,14 +127,16 @@ function App() {
                 playing={playing} setPlaying={setPlaying} nowPlaying={nowPlaying}
                 sessionFeed={sessionFeed} setSessionFeed={setSessionFeed}
                 odNow={odNow} setOdNow={setOdNow}
-                odTarget={odTarget} setOdTarget={setOdTarget}/>
+                odTarget={odTarget} setOdTarget={setOdTarget}
+                mixcloudWidgetRef={mixcloudWidgetRef}/>
         : <Stub route={route} navigate={navigate}/>}
 
       <Footer/>
 
       <Player playing={playing} setPlaying={setPlaying} accent={t.accent} nowPlaying={nowPlaying}
               sessionFeed={sessionFeed} setSessionFeed={setSessionFeed}
-              odNow={odNow} onClearOd={() => setOdNow(null)}/>
+              odNow={odNow} onClearOd={() => setOdNow(null)}
+              mixcloudWidgetRef={mixcloudWidgetRef}/>
 
       <TweaksPanel title="TWEAKS">
         <TweakSection label="Accent kleur"/>

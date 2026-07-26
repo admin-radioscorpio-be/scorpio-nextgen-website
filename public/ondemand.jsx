@@ -372,10 +372,15 @@ function ODEpisodes({ show, onOpen, onBack, pendingEpisodeId, onPendingResolved 
 }
 
 // ─── Episode detail + tracklist ───────────────────────────────────────────
-function ODDetail({ episode, show, onBack, onPlay, isCurrent }) {
+function ODDetail({ episode, show, onBack, onPlay, isCurrent, mixcloudWidgetRef }) {
   const { items, loading: trackLoading } = useODTracklist(episode);
   const coverRef = React.useRef(null);
   useCoverArtType(coverRef, episode.imageURL);
+
+  const seekToTrack = (startSeconds) => {
+    if (isCurrent) mixcloudWidgetRef?.current?.seek(startSeconds);
+    else onPlay(episode, show, startSeconds);
+  };
 
   return (
     <section data-screen-label="OD — Episode detail">
@@ -425,7 +430,8 @@ function ODDetail({ episode, show, onBack, onPlay, isCurrent }) {
               return items.map((t, i) => {
                 if (t.chapter) {
                   return (
-                    <div key={i} className="pl-row" style={{ opacity: 0.5 }}>
+                    <div key={i} className="pl-row od-track-row" style={{ opacity: 0.5 }}
+                         onClick={() => seekToTrack(t.startSeconds)}>
                       <span className="num">—</span>
                       <span className="time">{fmtSeconds(t.startSeconds)}</span>
                       <div className="cover"/>
@@ -437,7 +443,7 @@ function ODDetail({ episode, show, onBack, onPlay, isCurrent }) {
                 }
                 trackNum++;
                 return (
-                  <div key={i} className="pl-row">
+                  <div key={i} className="pl-row od-track-row" onClick={() => seekToTrack(t.startSeconds)}>
                     <span className="num">{String(trackNum).padStart(3, '0')}</span>
                     <span className="time">{fmtSeconds(t.startSeconds)}</span>
                     <div className="cover">
@@ -469,7 +475,7 @@ function ODDetail({ episode, show, onBack, onPlay, isCurrent }) {
 }
 
 // ─── Page root ────────────────────────────────────────────────────────────
-function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, setPlaying, odTarget, setOdTarget }) {
+function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, setPlaying, odTarget, setOdTarget, mixcloudWidgetRef }) {
   const [view, setView]                  = React.useState('shows');
   const [tag, setTag]                    = React.useState('Alles');
   const [show, setShow]                  = React.useState(null);
@@ -528,12 +534,13 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
     window.scrollTo({ top: 0 });
   };
 
-  const play = (ep, s) => {
+  const play = (ep, s, startSeconds) => {
     setSessionFeed({
       feed:     mixcloudFeed(ep.mixcloudURL),
       title:    ep.title,
       showName: s.showName,
       image:    ep.imageURL ?? null,
+      startSeconds: startSeconds ?? null,
     });
   };
 
@@ -585,7 +592,8 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
         <ODDetail episode={episode} show={show}
                   onBack={() => { setView('episodes'); navSelf('ondemand', String(show.showid)); }}
                   onPlay={play}
-                  isCurrent={!!episode.mixcloudURL && sessionFeed?.feed === mixcloudFeed(episode.mixcloudURL)}/>
+                  isCurrent={!!episode.mixcloudURL && sessionFeed?.feed === mixcloudFeed(episode.mixcloudURL)}
+                  mixcloudWidgetRef={mixcloudWidgetRef}/>
       )}
     </>
   );
