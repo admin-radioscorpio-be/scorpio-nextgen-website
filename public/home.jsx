@@ -32,8 +32,18 @@ function EventChipCard({ a, onClick }) {
   return (
     <div style={{
       border:'var(--hair) solid var(--ink)', background:'var(--paper)',
-      width:300, maxWidth:'100%',
+      width:300, maxWidth:'100%', position:'relative',
     }}>
+      {/* Binder rings punched through the top edge — reads as a calendar
+          page/planner rather than an alert banner. */}
+      {Array.from({ length: 10 }, (_, i) => `${((i + 0.5) / 10) * 100}%`).map((left) => (
+        <span key={left} aria-hidden="true" style={{
+          position:'absolute', top:-8, left, transform:'translateX(-50%)',
+          width:8, height:14, borderRadius:2, boxSizing:'border-box',
+          border:'3px solid var(--ink)', background:'var(--paper)',
+          zIndex:2,
+        }}/>
+      ))}
       <div style={{
         background: a.live ? '#e6283f' : 'var(--accent)',
         color: a.live ? '#f4f2ec' : 'var(--ink)',
@@ -46,7 +56,13 @@ function EventChipCard({ a, onClick }) {
         {a.live && <span className="dot pulse" style={{background:'#f4f2ec'}}/>}
         {a.live ? 'Live op locatie' : '✦ Aankondiging'}
       </div>
-      <div style={{padding:'16px 16px 18px', color:'var(--ink)'}}>
+      <div style={{
+        padding:'16px 16px 18px', color:'var(--ink)',
+        backgroundImage:
+          'linear-gradient(rgba(10,10,10,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(10,10,10,0.07) 1px, transparent 1px)',
+        // 7 equal columns (one per weekday) × fixed-height hour rows.
+        backgroundSize:'100% 24px, calc(100% / 7) 100%',
+      }}>
         <div style={{
           fontFamily:'"Archivo", sans-serif', fontWeight:800,
           fontSize:24, lineHeight:1.05, letterSpacing:'-0.01em',
