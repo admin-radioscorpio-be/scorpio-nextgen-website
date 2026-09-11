@@ -497,8 +497,9 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
       setView('shows'); setShow(null); setEpisode(null); setPendingEpisodeId(null);
     } else {
       const parts = hashParam.split('/');
-      const showid = Number(parts[0]);
-      if (showid) setOdTarget({ showid, episodeid: parts[1] ? Number(parts[1]) : null });
+      // parts[0] is either the numeric showid (legacy links) or the friendly
+      // slug — the worker resolves either form, this just passes it through.
+      setOdTarget({ key: parts[0], episodeid: parts[1] ? Number(parts[1]) : null });
     }
   }, [hashParam]);
 
@@ -508,29 +509,35 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
     return ['Alles', ...[...tags].sort()];
   }, [shows]);
 
-  // Deep-link: once shows are loaded, navigate to the target show (and optionally episode)
+  // Deep-link: resolve the show directly via the worker (accepts id or slug)
+  // rather than matching against the shows list.
   React.useEffect(() => {
-    if (!odTarget || loading || !shows.length) return;
-    const match = shows.find(s => s.showid === odTarget.showid);
-    if (match) {
-      setShow(match);
-      setView('episodes');
-      if (odTarget.episodeid) setPendingEpisodeId(odTarget.episodeid);
-      window.scrollTo({ top: 0 });
-    }
+    if (!odTarget) return;
+    const { key, episodeid } = odTarget;
     setOdTarget(null);
-  }, [odTarget, loading, shows]);
+    fetch(`${OD_API}/od/shows/${encodeURIComponent(key)}`)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(data => {
+        setShow(data);
+        setView('episodes');
+        if (episodeid) setPendingEpisodeId(episodeid);
+        window.scrollTo({ top: 0 });
+      })
+      .catch(() => {});
+  }, [odTarget]);
+
+  const showLinkParam = (s) => s.slug || String(s.showid);
 
   const openShow = (s) => {
     setShow(s);
     setView('episodes');
-    navSelf('ondemand', String(s.showid));
+    navSelf('ondemand', showLinkParam(s));
     window.scrollTo({ top: 0 });
   };
   const openEp = (ep) => {
     setEpisode(ep);
     setView('detail');
-    navSelf('ondemand', `${show.showid}/${ep.id}`);
+    navSelf('ondemand', `${showLinkParam(show)}/${ep.id}`);
     window.scrollTo({ top: 0 });
   };
 
@@ -590,7 +597,7 @@ function OnDemand({ setRoute, navigate, hashParam, sessionFeed, setSessionFeed, 
 
       {view === 'detail' && episode && show && (
         <ODDetail episode={episode} show={show}
-                  onBack={() => { setView('episodes'); navSelf('ondemand', String(show.showid)); }}
+                  onBack={() => { setView('episodes'); navSelf('ondemand', showLinkParam(show)); }}
                   onPlay={play}
                   isCurrent={!!episode.mixcloudURL && sessionFeed?.feed === mixcloudFeed(episode.mixcloudURL)}
                   mixcloudWidgetRef={mixcloudWidgetRef}/>
