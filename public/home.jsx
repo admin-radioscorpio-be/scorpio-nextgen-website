@@ -10,6 +10,16 @@ const ANNOUNCEMENTS = [
     start: '2026-01-01T00:00',
     end:   '2026-03-31T23:59',
   },
+  {
+    id: 'live-kiosk-2026',
+    live: true,
+    kicker: 'Van 21/9 tot en met 4/10 zenden we live uit vanop het Rector De Somerplein in Leuven.',
+    title: 'SCORPIO KIOSK',
+    cta: 'Bekijk het schema',
+    target: 'programmas',
+    start: '2026-09-09T00:00',
+    end:   '2026-10-04T23:59',
+  },
 ];
 function activeAnnouncement() {
   const now = new Date();
@@ -25,12 +35,17 @@ function EventChipCard({ a, onClick }) {
       width:300, maxWidth:'100%',
     }}>
       <div style={{
-        background:'var(--accent)', color:'var(--ink)',
+        background: a.live ? '#e6283f' : 'var(--accent)',
+        color: a.live ? '#f4f2ec' : 'var(--ink)',
         padding:'8px 14px',
         fontFamily:'"JetBrains Mono", monospace', fontSize:11,
         letterSpacing:'0.12em', textTransform:'uppercase', fontWeight:600,
         borderBottom:'var(--hair) solid var(--ink)',
-      }}>✦ Aankondiging</div>
+        display:'flex', alignItems:'center', gap:8,
+      }}>
+        {a.live && <span className="dot pulse" style={{background:'#f4f2ec'}}/>}
+        {a.live ? 'Live op locatie' : '✦ Aankondiging'}
+      </div>
       <div style={{padding:'16px 16px 18px', color:'var(--ink)'}}>
         <div style={{
           fontFamily:'"Archivo", sans-serif', fontWeight:800,
@@ -52,9 +67,9 @@ function EventChipCard({ a, onClick }) {
   );
 }
 
-function Home({ setRoute, playing, setPlaying, nowPlaying }) {
+function Home({ setRoute, navigate, playing, setPlaying, nowPlaying }) {
   const ann = activeAnnouncement();
-  const onAnnClick = () => setRoute && setRoute('home'); // placeholder target
+  const onAnnClick = () => { if (ann?.target && navigate) navigate(ann.target); };
   return (
     <>
       {/* HERO ─────────────────────────────────────────────── */}

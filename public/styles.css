@@ -286,7 +286,7 @@ img { display: block; max-width: 100%; }
   padding-top: 44px;
 }
 .hero h1 {
-  font-size: clamp(80px, 14vw, 240px);
+  font-size: clamp(64px, 11vw, 190px);
   line-height: 0.82;
   margin: 0;
 }
@@ -1390,7 +1390,7 @@ html { overflow-x: clip; }
   body { padding-bottom: 96px; } /* clears the tallest (on-demand) player */
 
   /* ---- Display type: lower the clamp floors so big words don't bleed - */
-  .hero h1 { font-size: clamp(48px, 15vw, 240px); }
+  .hero h1 { font-size: clamp(40px, 12vw, 190px); }
   .huge,
   .od-h1,
   .page-hd h1 { font-size: clamp(44px, 13vw, 200px); }

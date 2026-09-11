@@ -6,6 +6,41 @@ const DAY_ABBR     = { Maandag:'MA', Dinsdag:'DI', Woensdag:'WO', Donderdag:'DO'
 const DAYS         = ['MA','DI','WO','DO','VR','ZA','ZO'];
 const MONTHS_NL    = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
 
+// --- Static list of on-location live broadcasts — edit by hand per event ---
+// A slot is identified by the day column's date (dd/mm, as shown under the
+// day header in the rooster) and the show's start time (HH:MM). Add one
+// entry per show that airs live from the location that week; leave the
+// array empty when there's no on-location event scheduled.
+const LIVE_SLOTS = [
+   { date: '21/09', start: '20:00' },
+   { date: '21/09', start: '21:00' },
+   { date: '22/09', start: '21:00' },
+   { date: '23/09', start: '20:00' },
+   { date: '23/09', start: '21:00' },
+   { date: '24/09', start: '19:00' },
+   { date: '24/09', start: '20:00' },
+   { date: '24/09', start: '21:00' },
+   { date: '25/09', start: '20:00' },
+   { date: '25/09', start: '21:00' },
+   { date: '26/09', start: '18:00' },
+   { date: '27/09', start: '20:00' },
+   { date: '27/09', start: '21:00' },
+   { date: '28/09', start: '20:00' },
+   { date: '28/09', start: '21:00' },
+   { date: '29/09', start: '21:00' },
+   { date: '30/09', start: '20:00' },
+   { date: '30/09', start: '21:00' },
+   { date: '01/10', start: '20:00' },
+   { date: '01/10', start: '21:00' },
+   { date: '02/10', start: '20:00' },
+   { date: '02/10', start: '21:00' },
+   { date: '03/10', start: '18:00' },
+   { date: '04/10', start: '20:00' },
+   { date: '04/10', start: '21:00' }
+];
+const LIVE_COLOR = '#e6283f';
+function isLiveSlot(p) { return LIVE_SLOTS.some(s => s.date === p.date && s.start === p.start); }
+
 function fmtWeekLabel(details, nav) {
   if (!details.length) return '';
   const d0 = details[0].programmatiecolumn.date;
@@ -185,6 +220,11 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
             <span style={{display:'block', marginTop:14, color:'var(--mute)'}}>
               Filter, blader, ontdek.
             </span>
+            {LIVE_SLOTS.length > 0 && (
+              <span style={{display:'flex', alignItems:'center', gap:6, marginTop:10, color:LIVE_COLOR, fontWeight:700}}>
+                <span className="dot pulse" style={{background:LIVE_COLOR}}/> live op locatie
+              </span>
+            )}
           </div>
         </div>
 
@@ -235,22 +275,29 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
         {/* Lijst view ─────────────────────────────────────── */}
         {view === 'lijst' && (
           <div style={{borderTop:'1px solid var(--ink)'}}>
-            {listBlocks.map((p, i) => (
-              <div key={p.id} className="prog-row"
-                   style={{cursor: 'pointer'}}
-                   onClick={() => goToOD(p.showid)}>
-                <span className="day">{p.day}</span>
-                <span className="time">{p.time}</span>
-                <div>
-                  <div className="name">{p.name}</div>
-                  <div className="prog-row-dj" style={{marginTop:4, color:'var(--mute)'}}>
-                    {p.date}
+            {listBlocks.map((p, i) => {
+              const live = isLiveSlot(p);
+              return (
+                <div key={p.id} className="prog-row"
+                     style={{cursor: 'pointer', ...(live ? {borderLeft:`4px solid ${LIVE_COLOR}`} : {})}}
+                     onClick={() => goToOD(p.showid)}>
+                  <span className="day">{p.day}</span>
+                  <span className="time">{p.time}</span>
+                  <div>
+                    <div className="name">
+                      {live && <span className="dot pulse" style={{background:LIVE_COLOR, marginRight:8}}/>}
+                      {p.name}
+                    </div>
+                    <div className="prog-row-dj" style={{marginTop:4, color:'var(--mute)'}}>
+                      {p.date}
+                      {live && <span style={{color:LIVE_COLOR, fontWeight:700, marginLeft:8}}>· live op locatie</span>}
+                    </div>
                   </div>
+                  <span className="gen">{p.genres.length ? p.genres.join(', ') : '—'}</span>
+                  <span className="arr">→</span>
                 </div>
-                <span className="gen">{p.genres.length ? p.genres.join(', ') : '—'}</span>
-                <span className="arr">→</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -297,15 +344,17 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
                         const genreActive = genre !== 'Alles';
                         const isMatch = genreActive && parentBlock && parentBlock.genres.includes(genre);
                         const isDim   = genreActive && parentBlock && !parentBlock.genres.includes(genre);
+                        const isLive  = parentBlock && isLiveSlot(parentBlock);
                         return (
                           <div key={d} className="cell"
-                               title={parentBlock ? `${parentBlock.name} · ${parentBlock.start}–${parentBlock.end}` : ''}
+                               title={parentBlock ? `${parentBlock.name} · ${parentBlock.start}–${parentBlock.end}${isLive ? ' · live op locatie' : ''}` : ''}
                                style={{
                                  cursor: parentBlock ? 'pointer' : 'default',
                                  ...(nextIsCont ? {borderBottom:'none'} : {}),
                                  ...(isHovered  ? {background:'var(--ink)', color:'var(--accent)'} : {}),
                                  ...(!isHovered && isMatch ? {background:'var(--accent)', color:'var(--ink)'} : {}),
                                  ...(!isHovered && isDim   ? {opacity:0.2} : {}),
+                                 ...(!isHovered && isLive  ? {background:LIVE_COLOR, color:'#f4f2ec'} : {}),
                                }}
                                onMouseEnter={() => groupKey && setHovered(groupKey)}
                                onMouseLeave={() => setHovered(null)}
@@ -313,7 +362,7 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
                             {isCont
                               ? null
                               : parentBlock
-                                ? parentBlock.name
+                                ? <>{isLive && <span className="dot pulse" style={{background:'#f4f2ec', marginRight:6}}/>}{parentBlock.name}</>
                                 : <span style={{color:'var(--mute)', fontWeight:400}}>—</span>
                             }
                           </div>
