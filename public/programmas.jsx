@@ -22,6 +22,7 @@ const LIVE_SLOTS = [
    { date: '24/09', start: '21:00' },
    { date: '25/09', start: '20:00' },
    { date: '25/09', start: '21:00' },
+   { date: '26/09', start: '16:00' },
    { date: '26/09', start: '18:00' },
    { date: '27/09', start: '20:00' },
    { date: '27/09', start: '21:00' },
@@ -35,6 +36,7 @@ const LIVE_SLOTS = [
    { date: '01/10', start: '21:00' },
    { date: '02/10', start: '20:00' },
    { date: '02/10', start: '21:00' },
+   { date: '03/10', start: '16:00' },
    { date: '03/10', start: '18:00' },
    { date: '04/10', start: '20:00' },
    { date: '04/10', start: '21:00' }
