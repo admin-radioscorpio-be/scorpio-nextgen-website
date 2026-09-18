@@ -6,43 +6,8 @@ const DAY_ABBR     = { Maandag:'MA', Dinsdag:'DI', Woensdag:'WO', Donderdag:'DO'
 const DAYS         = ['MA','DI','WO','DO','VR','ZA','ZO'];
 const MONTHS_NL    = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
 
-// --- Static list of on-location live broadcasts — edit by hand per event ---
-// A slot is identified by the day column's date (dd/mm, as shown under the
-// day header in the rooster) and the show's start time (HH:MM). Add one
-// entry per show that airs live from the location that week; leave the
-// array empty when there's no on-location event scheduled.
-const LIVE_SLOTS = [
-   { date: '21/09', start: '20:00' },
-   { date: '21/09', start: '21:00' },
-   { date: '22/09', start: '21:00' },
-   { date: '23/09', start: '20:00' },
-   { date: '23/09', start: '21:00' },
-   { date: '24/09', start: '19:00' },
-   { date: '24/09', start: '20:00' },
-   { date: '24/09', start: '21:00' },
-   { date: '25/09', start: '20:00' },
-   { date: '25/09', start: '21:00' },
-   { date: '26/09', start: '16:00' },
-   { date: '26/09', start: '18:00' },
-   { date: '27/09', start: '20:00' },
-   { date: '27/09', start: '21:00' },
-   { date: '28/09', start: '20:00' },
-   { date: '28/09', start: '21:00' },
-   { date: '29/09', start: '21:00' },
-   { date: '30/09', start: '18:00' },
-   { date: '30/09', start: '20:00' },
-   { date: '30/09', start: '21:00' },
-   { date: '01/10', start: '20:00' },
-   { date: '01/10', start: '21:00' },
-   { date: '02/10', start: '20:00' },
-   { date: '02/10', start: '21:00' },
-   { date: '03/10', start: '16:00' },
-   { date: '03/10', start: '18:00' },
-   { date: '04/10', start: '20:00' },
-   { date: '04/10', start: '21:00' }
-];
+// On-location live broadcasts come straight from the schedule API's `isLive` flag now.
 const LIVE_COLOR = '#e6283f';
-function isLiveSlot(p) { return LIVE_SLOTS.some(s => s.date === p.date && s.start === p.start); }
 
 function fmtWeekLabel(details, nav) {
   if (!details.length) return '';
@@ -106,6 +71,7 @@ function useSchedule(startDate) {
               imageURL:  b.imageURL || '',
               linkURL:   b.linkURL  || '',
               isNonstop: b.showid === NONSTOP_ID,
+              isLive:    b.isLive === 1,
               genres:    b.genres || [],
             });
           });
@@ -184,6 +150,7 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
   const { allBlocks, byDaySlot, slots, uniqueShows, allGenres, datesByDay, nav, weekLabel } = schedule;
 
   const genreChips = ['Alles', ...allGenres];
+  const hasLiveSlots = allBlocks.some(p => p.isLive);
 
   // Shared nav button style
   const navBtnStyle = (enabled) => ({
@@ -223,7 +190,7 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
             <span style={{display:'block', marginTop:14, color:'var(--mute)'}}>
               Filter, blader, ontdek.
             </span>
-            {LIVE_SLOTS.length > 0 && (
+            {hasLiveSlots && (
               <span style={{display:'flex', alignItems:'center', gap:6, marginTop:10, color:LIVE_COLOR, fontWeight:700}}>
                 <span className="dot pulse" style={{background:LIVE_COLOR}}/> live op locatie
               </span>
@@ -279,7 +246,7 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
         {view === 'lijst' && (
           <div style={{borderTop:'1px solid var(--ink)'}}>
             {listBlocks.map((p, i) => {
-              const live = isLiveSlot(p);
+              const live = p.isLive;
               return (
                 <div key={p.id} className="prog-row"
                      style={{cursor: 'pointer', ...(live ? {borderLeft:`4px solid ${LIVE_COLOR}`} : {})}}
@@ -347,7 +314,7 @@ function Programmas({ setRoute, navigate, hashParam, setOdTarget }) {
                         const genreActive = genre !== 'Alles';
                         const isMatch = genreActive && parentBlock && parentBlock.genres.includes(genre);
                         const isDim   = genreActive && parentBlock && !parentBlock.genres.includes(genre);
-                        const isLive  = parentBlock && isLiveSlot(parentBlock);
+                        const isLive  = parentBlock && parentBlock.isLive;
                         return (
                           <div key={d} className="cell"
                                title={parentBlock ? `${parentBlock.name} · ${parentBlock.start}–${parentBlock.end}${isLive ? ' · live op locatie' : ''}` : ''}
