@@ -29,13 +29,18 @@ function songMatchesTrack(song, track) {
   return song.replace(/^\d+\.\s+/, '') === track.title;
 }
 
-// Convert a selected Brussels hour on a date to the correct UTC ISO string for the API
+// Convert a selected Brussels hour on a date to the correct UTC ISO string for the API.
+// The offset comes from the full Brussels date and time: comparing only the hour went
+// wrong when Brussels is already on the next day (22:00 and 23:00 in summer gave the
+// next day's hour).
 function brusselsHourToUTC(dateStr, hour) {
   const approx = new Date(`${dateStr}T${String(hour).padStart(2, '0')}:00:00Z`);
-  const bh = parseInt(new Intl.DateTimeFormat('en', {
-    timeZone: 'Europe/Brussels', hour: 'numeric', hour12: false,
-  }).format(approx));
-  return new Date(approx.getTime() + (hour - bh) * 3600000).toISOString();
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Brussels', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(approx).map(x => [x.type, x.value]));
+  const offsetMs = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute) - approx.getTime();
+  return new Date(approx.getTime() - offsetMs).toISOString();
 }
 
 function fetchPlaylist(startlistdate) {
