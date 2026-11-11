@@ -12,12 +12,7 @@ const VOL_ROLES = [
 
 const VOLUNTEER_API = 'https://public.radioscorpio.be/api/volunteer/submit';
 
-// Form managed in my-scorpio → Formulieren (embedded only, on this page).
-const VOL_FORM_SLUG = 'vrijwilliger-aanmelding';
-
-// Old form (volunteer worker). Only shown while the my-scorpio form
-// 'vrijwilliger-aanmelding' is not published; remove when the volunteer worker is retired.
-function LegacyVolunteerForm() {
+function Vrijwilliger({ setRoute }) {
   const [form, setForm] = React.useState({ name: '', email: '', role: VOL_ROLES[0], msg: '' });
   const [sent, setSent] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
@@ -50,66 +45,6 @@ function LegacyVolunteerForm() {
       setSubmitting(false);
     }
   };
-
-  return (
-    <>
-      {sent ? (
-              <div className="vr-sent">
-                <div className="vr-sent-mark">✓</div>
-                <h3>Bedankt, {sentName.split(' ')[0] || 'collega'}!</h3>
-                <p>
-                  We hebben je inschrijving voor <b>{sentRole}</b> ontvangen.
-                  De programmatieraad neemt zo snel mogelijk contact op via{' '}
-                  <b>{sentEmail}</b>.
-                </p>
-                <button className="play-cta filled" onClick={() => setSent(false)}>
-                  <span className="ico"><Ic.arrow/></span>
-                  Nog iemand inschrijven
-                </button>
-              </div>
-            ) : (
-              <form className="vr-form" onSubmit={submit}>
-                <div className="eyebrow" style={{color:'var(--ink)', marginBottom:18}}>// Schrijf je in</div>
-                <label className="vr-field">
-                  <span>Naam</span>
-                  <input type="text" required value={form.name} onChange={set('name')} placeholder="Voor- en achternaam"/>
-                </label>
-                <label className="vr-field">
-                  <span>E-mail</span>
-                  <input type="email" required value={form.email} onChange={set('email')} placeholder="jouw@email.be"/>
-                </label>
-                <label className="vr-field">
-                  <span>Interesse</span>
-                  <select value={form.role} onChange={set('role')}>
-                    {VOL_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                  </select>
-                </label>
-                <label className="vr-field">
-                  <span>Bericht</span>
-                  <textarea rows="4" required value={form.msg} onChange={set('msg')} placeholder="Vertel kort iets over jezelf"/>
-                </label>
-                {error && <p style={{color:'#c0392b', fontSize:13, margin:'0 0 12px'}}>{error}</p>}
-                <button type="submit" className="vr-submit" disabled={submitting}>
-                  {submitting ? 'Versturen…' : <>Verstuur inschrijving <Ic.arrow/></>}
-                </button>
-                <p className="vr-form-foot">
-                  Liever mailen? <a href="mailto:programmatieraad@radioscorpio.be">programmatieraad@radioscorpio.be</a>
-                </p>
-              </form>
-            )}
-    </>
-  );
-}
-
-function Vrijwilliger({ setRoute }) {
-  // "Wat kan je doen" follows the choices of the form's dropdown in my-scorpio.
-  const [roles, setRoles] = React.useState(VOL_ROLES.filter(r => !/^iets anders/i.test(r)));
-  const onFormLoad = (form) => {
-    const select = form.fields.find(f => f.type === 'select');
-    const opts = (select?.options || []).filter(o => !/^iets anders/i.test(o));
-    if (opts.length) setRoles(opts);
-  };
-  const ScorpioFormC = window.ScorpioForm;
 
   return (
     <>
@@ -157,7 +92,7 @@ function Vrijwilliger({ setRoute }) {
           <div className="vr-roles">
             <div className="eyebrow" style={{color:'var(--mute)', marginBottom:18}}>// Wat kan je doen</div>
             <ul>
-              {roles.map(r => (
+              {VOL_ROLES.slice(0, 6).map(r => (
                 <li key={r}><span className="vr-bullet">→</span>{r}</li>
               ))}
             </ul>
@@ -167,10 +102,50 @@ function Vrijwilliger({ setRoute }) {
           </div>
 
           <div className="vr-form-wrap">
-            <ScorpioFormC slug={VOL_FORM_SLUG} onLoad={onFormLoad}
-              eyebrow="// Schrijf je in" submitLabel="Verstuur inschrijving" againLabel="Nog iemand inschrijven"
-              footer={<>Liever mailen? <a href="mailto:programmatieraad@radioscorpio.be">programmatieraad@radioscorpio.be</a></>}
-              fallback={<LegacyVolunteerForm/>}/>
+            {sent ? (
+              <div className="vr-sent">
+                <div className="vr-sent-mark">✓</div>
+                <h3>Bedankt, {sentName.split(' ')[0] || 'collega'}!</h3>
+                <p>
+                  We hebben je inschrijving voor <b>{sentRole}</b> ontvangen.
+                  De programmatieraad neemt zo snel mogelijk contact op via{' '}
+                  <b>{sentEmail}</b>.
+                </p>
+                <button className="play-cta filled" onClick={() => setSent(false)}>
+                  <span className="ico"><Ic.arrow/></span>
+                  Nog iemand inschrijven
+                </button>
+              </div>
+            ) : (
+              <form className="vr-form" onSubmit={submit}>
+                <div className="eyebrow" style={{color:'var(--ink)', marginBottom:18}}>// Schrijf je in</div>
+                <label className="vr-field">
+                  <span>Naam</span>
+                  <input type="text" required value={form.name} onChange={set('name')} placeholder="Voor- en achternaam"/>
+                </label>
+                <label className="vr-field">
+                  <span>E-mail</span>
+                  <input type="email" required value={form.email} onChange={set('email')} placeholder="jouw@email.be"/>
+                </label>
+                <label className="vr-field">
+                  <span>Interesse</span>
+                  <select value={form.role} onChange={set('role')}>
+                    {VOL_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </label>
+                <label className="vr-field">
+                  <span>Bericht</span>
+                  <textarea rows="4" required value={form.msg} onChange={set('msg')} placeholder="Vertel kort iets over jezelf"/>
+                </label>
+                {error && <p style={{color:'#c0392b', fontSize:13, margin:'0 0 12px'}}>{error}</p>}
+                <button type="submit" className="vr-submit" disabled={submitting}>
+                  {submitting ? 'Versturen…' : <>Verstuur inschrijving <Ic.arrow/></>}
+                </button>
+                <p className="vr-form-foot">
+                  Liever mailen? <a href="mailto:programmatieraad@radioscorpio.be">programmatieraad@radioscorpio.be</a>
+                </p>
+              </form>
+            )}
           </div>
         </div>
       </main>
