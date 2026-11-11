@@ -4,7 +4,7 @@
 const FORMS_API = 'https://public.radioscorpio.be/api/form/public';
 // Cloudflare Turnstile site key (public). Leave empty to disable the widget;
 // the worker only enforces Turnstile when TURNSTILE_SECRET is set.
-const TURNSTILE_SITEKEY = '';
+const TURNSTILE_SITEKEY = '0x4AAAAAAF86c83jITkgj42X';
 const FORM_MAX_FILE = 5 * 1024 * 1024;
 const FORM_FILE_ACCEPT = '.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp';
 
