@@ -1,0 +1,39 @@
+---
+// www.radioscorpio.be/<slug> → form page, if a published form with that slug
+// exists in my-scorpio → Formulieren. Anything else behaves like the 404 page.
+// (Static files in public/ are served before this route is ever reached.)
+import { env } from 'cloudflare:workers';
+import Shell from '../layouts/Shell.astro';
+
+const slug = (Astro.params.slug ?? '').toLowerCase();
+const test = Astro.url.searchParams.get('test') ?? '';
+const testQuery = /^[a-f0-9]{8,64}$/.test(test) ? `?test=${test}` : '';
+let form: { title: string; kicker: string | null; preview?: boolean } | null = null;
+let known = false; // true when the forms worker gave a definite answer
+
+if (/^[a-z0-9-]{2,60}$/.test(slug)) {
+  const forms = (env as unknown as { FORMS?: Fetcher }).FORMS;
+  try {
+    const res = forms
+      ? await forms.fetch(`https://forms.internal/api/form/public/${slug}${testQuery}`)
+      : await fetch(`https://public.radioscorpio.be/api/form/public/${slug}${testQuery}`);
+    if (res.ok) { form = await res.json(); known = true; }
+    else if (res.status === 404) known = true;
+  } catch (e) {
+    console.error('forms lookup failed', e);
+  }
+} else {
+  known = true;
+}
+
+// Forms worker unreachable: still render the form page, the browser retries.
+const isForm = !!form || !known;
+if (!isForm) Astro.response.status = 404;
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+{isForm
+  ? <Shell title={form ? `${form.title} — Radio Scorpio 106 FM` : 'Radio Scorpio 106 FM'}
+           description={form?.kicker ?? null}
+           noindex={!!form?.preview || !known}
+           forceRoute="formulier" forceParam={slug} />
+  : <Shell title="Niet gevonden — Radio Scorpio 106 FM" forceRoute="notfound" />}

@@ -1,29 +1,21 @@
 // home.jsx — Radio Scorpio homepage
 
-// --- MOCK announcement data (would come from data file / CMS) ---------
-const ANNOUNCEMENTS = [
-  {
-    id: 'quiz-2026',
-    kicker: '14 maart · Ontmoetingscentrum Genadedal',
-    title: 'Scorpio Muziek Quiz',
-    cta: 'Schrijf je in',
-    start: '2026-01-01T00:00',
-    end:   '2026-03-31T23:59',
-  },
-  {
-    id: 'live-kiosk-2026',
-    live: true,
-    kicker: 'Van 21/9 tot en met 4/10 zenden we live uit vanop het Rector De Somerplein in Leuven.',
-    title: 'SCORPIO KIOSK',
-    cta: 'Bekijk het schema',
-    target: 'programmas',
-    start: '2026-09-09T00:00',
-    end:   '2026-10-04T23:59',
-  },
-];
-function activeAnnouncement() {
-  const now = new Date();
-  return ANNOUNCEMENTS.find(a => now >= new Date(a.start) && now <= new Date(a.end)) || null;
+// --- Announcement chip, managed in my-scorpio → Formulieren → Aankondigingen ---
+// The API only returns announcements that are active now (and, for form links,
+// whose form is published); the first one is the newest.
+const ANNOUNCEMENTS_API = 'https://public.radioscorpio.be/api/form/public/announcements';
+
+function useActiveAnnouncement() {
+  const [ann, setAnn] = React.useState(null);
+  React.useEffect(() => {
+    let alive = true;
+    fetch(ANNOUNCEMENTS_API)
+      .then(r => (r.ok ? r.json() : { announcements: [] }))
+      .then(d => { if (alive) setAnn((d.announcements || [])[0] || null); })
+      .catch(() => {});  // no announcement is better than a broken home page
+    return () => { alive = false; };
+  }, []);
+  return ann;
 }
 
 // --- Hero chip: compact event card in the right column ----------------
@@ -71,21 +63,24 @@ function EventChipCard({ a, onClick }) {
           fontFamily:'"JetBrains Mono", monospace', fontSize:12,
           letterSpacing:'0.06em', marginTop:8, opacity:0.7,
         }}>{a.kicker}</div>
-        <a onClick={onClick} style={{
+        {a.cta && <a onClick={onClick} style={{
           display:'inline-flex', alignItems:'center', gap:8, cursor:'pointer',
           marginTop:16, background:'var(--ink)', color:'var(--paper)',
           padding:'9px 16px',
           fontFamily:'"JetBrains Mono", monospace', fontSize:12,
           letterSpacing:'0.08em', textTransform:'uppercase', fontWeight:600,
-        }}>{a.cta} <span aria-hidden="true">→</span></a>
+        }}>{a.cta} <span aria-hidden="true">→</span></a>}
       </div>
     </div>
   );
 }
 
 function Home({ setRoute, navigate, playing, setPlaying, nowPlaying }) {
-  const ann = activeAnnouncement();
-  const onAnnClick = () => { if (ann?.target && navigate) navigate(ann.target); };
+  const ann = useActiveAnnouncement();
+  const onAnnClick = () => {
+    if (ann?.href) { window.location.href = ann.href; return; }
+    if (ann?.page && navigate) navigate(ann.page);
+  };
   return (
     <>
       {/* HERO ─────────────────────────────────────────────── */}

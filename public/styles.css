@@ -2938,3 +2938,14 @@ html { overflow-x: clip; }
   .srch-arr { grid-area: arr; align-self: center; }
 }
 
+
+/* Generic forms (forms.jsx) — reuses the vr-* volunteer form styles ------- */
+.page-hd h1.fm-title { font-size: clamp(44px, 7vw, 110px); line-height: 0.9; overflow-wrap: anywhere; }
+.fm-info .fm-para { font-size: 16px; line-height: 1.6; margin: 0 0 16px; }
+.fm-info .fm-para:last-child { margin-bottom: 0; }
+.fm-info a, .fm-help a { text-decoration: underline; text-underline-offset: 3px; font-weight: 600; color: var(--ink); }
+.fm-help { display: block; margin-top: 6px; font-size: 12px; color: var(--mute); }
+.vr-field input[type="file"] { padding: 10px 12px; font-size: 14px; cursor: pointer; }
+.fm-check { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; font-size: 15px; line-height: 1.4; cursor: pointer; }
+.fm-check input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--ink); flex: none; }
+.fm-test-banner { border: var(--hair) dashed var(--ink); background: #fff3bf; color: var(--ink); padding: 12px 16px; margin-bottom: 24px; font-size: 14px; }

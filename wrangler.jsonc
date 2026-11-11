@@ -10,6 +10,11 @@
 	// "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "my-emdash-media", "preview_bucket_name": "my-emdash-media" }],
 	// "worker_loaders": [{ "binding": "LOADER" }],
 
+	// Form pages (src/pages/[slug].astro) look up the form here.
+	"services": [
+		{ "binding": "FORMS", "service": "wrk-my-scorpio-forms" }
+	],
+
 	"routes": [
 		{
 			"pattern": "www.radioscorpio.be",

@@ -24,6 +24,7 @@ const GA_TITLES = {
   alijst: 'A-Lijst', beste106: 'Beste 106', vrijwilliger: 'Vrijwilliger worden',
   wiezijnwij: 'Wie zijn wij', colofon: 'Colofon', steun: 'Steun ons',
   logos: "Logo's", cookies: 'Cookiebeleid', search: 'Zoeken', notfound: 'Niet gevonden',
+  formulier: 'Formulier',
 };
 
 function gaPageView(page, param) {
@@ -37,8 +38,10 @@ function gaPageView(page, param) {
 
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
-  const init = React.useMemo(() => window.__FORCE_ROUTE__
-    ? { page: window.__FORCE_ROUTE__, param: null }
+  // A server page can force the route (404, /<form-slug>), unless the visitor
+  // already navigated inside the SPA (hash present).
+  const init = React.useMemo(() => window.__FORCE_ROUTE__ && !window.location.hash.replace(/^#\/?/, '')
+    ? { page: window.__FORCE_ROUTE__, param: window.__FORCE_PARAM__ || null }
     : parseHash(), []);
   const [route, setRoute] = React.useState(init.page);
   const [hashParam, setHashParam] = React.useState(init.param);
@@ -113,7 +116,8 @@ function App() {
   }, []);
 
   const Page = { home: Home, programmas: Programmas, playlist: Playlist, ondemand: OnDemand, alijst: ALijst,
-                 beste106: Beste106, colofon: Colofon, wiezijnwij: WieZijnWij, vrijwilliger: Vrijwilliger, steun: Shop, logos: Logos, cookies: Cookies, search: Search, notfound: NotFound }[route];
+                 beste106: Beste106, colofon: Colofon, wiezijnwij: WieZijnWij, vrijwilliger: Vrijwilliger, steun: Shop, logos: Logos, cookies: Cookies, search: Search, notfound: NotFound,
+                 formulier: window.FormPage }[route];
 
   return (
     <div style={style}>
