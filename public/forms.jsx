@@ -83,44 +83,54 @@ function emptyValues(fields) {
 }
 
 // Secret test link for draft forms: www.radioscorpio.be/<slug>?test=<code>
+// (for embedded forms: www.radioscorpio.be/?test=<code>#/<page>)
 function formTestQuery() {
   const t = new URLSearchParams(window.location.search).get('test');
   return t && /^[a-f0-9]{8,64}$/.test(t) ? `?test=${t}` : '';
 }
 
-function FormPage({ hashParam, navigate }) {
-  const slug = (hashParam || window.__FORCE_PARAM__ || '').toLowerCase();
-  const testQuery = formTestQuery();
+// Loads a form definition. state: loading | ready | notfound | error
+function useFormDefinition(slug) {
   const [form, setForm] = React.useState(null);
-  const [state, setState] = React.useState('loading'); // loading | ready | notfound | error
-  const [values, setValues] = React.useState({});
-  const [files, setFiles] = React.useState({});
-  const [submitting, setSubmitting] = React.useState(false);
-  const [error, setError] = React.useState(null);
-  const [sent, setSent] = React.useState(null);
-  const tsRef = React.useRef(null);
-  const [tsToken, tsReset] = useTurnstile(tsRef, !!TURNSTILE_SITEKEY && state === 'ready' && form?.availability === 'open' && !sent);
-
+  const [state, setState] = React.useState('loading');
   React.useEffect(() => {
     let alive = true;
     setState('loading');
-    setSent(null);
-    if (!/^[a-z0-9-]{2,60}$/.test(slug)) { setState('notfound'); return; }
-    fetch(`${FORMS_API}/${slug}${testQuery}`)
+    if (!/^[a-z0-9-]{2,60}$/.test(slug || '')) { setState('notfound'); return; }
+    fetch(`${FORMS_API}/${slug}${formTestQuery()}`)
       .then(async r => {
         if (r.status === 404) { if (alive) setState('notfound'); return; }
         if (!r.ok) throw new Error();
         const data = await r.json();
         if (!alive) return;
         setForm(data);
-        setValues(emptyValues(data.fields));
-        setFiles({});
         setState('ready');
-        document.title = `${data.title} — Radio Scorpio 106 FM`;
       })
       .catch(() => alive && setState('error'));
     return () => { alive = false; };
   }, [slug]);
+  return { form, setForm, state };
+}
+
+function FormTestBanner() {
+  return (
+    <div className="fm-test-banner">
+      <b>Testversie</b> — dit formulier is nog niet publiek. Inzendingen worden als TEST gemarkeerd.
+    </div>
+  );
+}
+
+// The form itself (fields, Turnstile, submit, thank-you / closed message).
+// Used by the standalone form page and by forms embedded in other pages.
+function FormBody({ form, setForm, eyebrow = '// Vul in', submitLabel = 'Versturen', footer, againLabel = 'Nog een inzending' }) {
+  const slug = form.slug;
+  const [values, setValues] = React.useState(() => emptyValues(form.fields));
+  const [files, setFiles] = React.useState({});
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [sent, setSent] = React.useState(null);
+  const tsRef = React.useRef(null);
+  const [tsToken, tsReset] = useTurnstile(tsRef, !!TURNSTILE_SITEKEY && form.availability === 'open' && !sent);
 
   const setVal = (name, v) => setValues(prev => ({ ...prev, [name]: v }));
 
@@ -147,12 +157,13 @@ function FormPage({ hashParam, navigate }) {
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${FORMS_API}/${slug}/submit${testQuery}`, { method: 'POST', body: fd });
+      const res = await fetch(`${FORMS_API}/${slug}/submit${formTestQuery()}`, { method: 'POST', body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         if (data.availability) setForm(prev => ({ ...prev, availability: data.availability }));
         throw new Error(data.error || 'Versturen mislukt.');
       }
+      // success_text comes back with {placeholders} already filled in
       setSent({ text: data.success_text || form.success_text || 'Bedankt! Je inzending is goed ontvangen.' });
       setValues(emptyValues(form.fields));
       setFiles({});
@@ -164,6 +175,94 @@ function FormPage({ hashParam, navigate }) {
       setSubmitting(false);
     }
   };
+
+  const closedMsg = {
+    not_yet: 'Inschrijvingen zijn nog niet geopend.',
+    closed:  'Inschrijvingen zijn afgesloten.',
+    full:    'Volzet! Het maximum aantal inschrijvingen is bereikt.',
+  }[form.availability];
+
+  if (sent) {
+    return (
+      <div className="vr-sent">
+        <div className="vr-sent-mark">✓</div>
+        <h3>Verstuurd!</h3>
+        <p style={{whiteSpace:'pre-line'}}>{sent.text}</p>
+        <button className="play-cta filled" onClick={() => setSent(null)}>
+          <span className="ico"><Ic.arrow/></span>
+          {againLabel}
+        </button>
+      </div>
+    );
+  }
+
+  if (closedMsg) {
+    return (
+      <div className="vr-sent">
+        <h3>{form.availability === 'full' ? 'Volzet' : 'Gesloten'}</h3>
+        <p>{closedMsg}</p>
+      </div>
+    );
+  }
+
+  return (
+    <form className="vr-form" onSubmit={submit} noValidate={false}>
+      <div className="eyebrow" style={{color:'var(--ink)', marginBottom:18}}>{eyebrow}</div>
+
+      {form.fields.map(f => <FormField key={f.name} f={f}
+        value={values[f.name]} onChange={v => setVal(f.name, v)}
+        file={files[f.name]} onFile={file => setFiles(prev => ({ ...prev, [f.name]: file }))}/>)}
+
+      {/* Honeypot: hidden from people, bots fill it in. */}
+      <div aria-hidden="true" style={{position:'absolute', left:'-10000px', width:1, height:1, overflow:'hidden'}}>
+        <label>Laat dit leeg<input type="text" name="_hp" tabIndex={-1} autoComplete="off" defaultValue=""/></label>
+      </div>
+
+      {TURNSTILE_SITEKEY && <div ref={tsRef} style={{marginBottom:18}}/>}
+
+      {error && <p style={{color:'#c0392b', fontSize:13, margin:'0 0 12px'}}>{error}</p>}
+      <button type="submit" className="vr-submit" disabled={submitting}>
+        {submitting ? 'Versturen…' : <>{submitLabel} <Ic.arrow/></>}
+      </button>
+      <p className="vr-form-foot">
+        {footer || 'We gebruiken je gegevens enkel hiervoor en wissen ze na afloop.'}
+      </p>
+    </form>
+  );
+}
+
+/**
+ * Embed a form from my-scorpio → Formulieren in any page:
+ *   <ScorpioForm slug="vrijwilliger-aanmelding" fallback={<OldForm/>} onLoad={form => …}/>
+ * While the form is not available (not published, no test link, API down) the
+ * fallback is shown, so a page can switch over by just publishing the form.
+ */
+function ScorpioForm({ slug, fallback = null, onLoad, ...bodyProps }) {
+  const { form, setForm, state } = useFormDefinition(slug);
+  React.useEffect(() => { if (state === 'ready' && onLoad) onLoad(form); }, [state, form]);
+
+  if (state === 'loading') return <div className="eyebrow" style={{color:'var(--mute)'}}>// Laden…</div>;
+  if (state !== 'ready') {
+    return fallback || <p style={{color:'var(--mute)'}}>Dit formulier is momenteel niet beschikbaar.</p>;
+  }
+  return (
+    <>
+      {form.preview && <FormTestBanner/>}
+      <FormBody form={form} setForm={setForm} {...bodyProps}/>
+    </>
+  );
+}
+
+// Standalone form page: www.radioscorpio.be/<slug>
+function FormPage({ hashParam }) {
+  const slug = (hashParam || window.__FORCE_PARAM__ || '').toLowerCase();
+  const { form, setForm, state: loadState } = useFormDefinition(slug);
+  // Embedded-only forms have no page of their own.
+  const state = loadState === 'ready' && form.embed_only ? 'notfound' : loadState;
+
+  React.useEffect(() => {
+    if (state === 'ready') document.title = `${form.title} — Radio Scorpio 106 FM`;
+  }, [state, form]);
 
   if (state === 'loading') {
     return <main className="shell" style={{padding:'80px 24px', minHeight:'50vh'}}><div className="eyebrow" style={{color:'var(--mute)'}}>// Laden…</div></main>;
@@ -190,12 +289,6 @@ function FormPage({ hashParam, navigate }) {
     );
   }
 
-  const closedMsg = {
-    not_yet: 'Inschrijvingen zijn nog niet geopend.',
-    closed:  'Inschrijvingen zijn afgesloten.',
-    full:    'Volzet! Het maximum aantal inschrijvingen is bereikt.',
-  }[form.availability];
-
   return (
     <>
       <section data-screen-label={`Formulier — ${form.title}`}>
@@ -209,57 +302,14 @@ function FormPage({ hashParam, navigate }) {
       </section>
 
       <main className="shell" style={{paddingTop: 32}}>
-        {form.preview && (
-          <div className="fm-test-banner">
-            <b>Testversie</b> — dit formulier is nog niet publiek. Inzendingen worden als TEST gemarkeerd.
-          </div>
-        )}
+        {form.preview && <FormTestBanner/>}
         <div className="vr-apply fm-apply">
           <div className="vr-roles fm-info">
             <div className="eyebrow" style={{color:'var(--mute)', marginBottom:18}}>// Praktisch</div>
             <FormRichText text={form.intro}/>
           </div>
-
           <div className="vr-form-wrap">
-            {sent ? (
-              <div className="vr-sent">
-                <div className="vr-sent-mark">✓</div>
-                <h3>Verstuurd!</h3>
-                <p>{sent.text}</p>
-                <button className="play-cta filled" onClick={() => setSent(null)}>
-                  <span className="ico"><Ic.arrow/></span>
-                  Nog een inzending
-                </button>
-              </div>
-            ) : closedMsg ? (
-              <div className="vr-sent">
-                <h3>{form.availability === 'full' ? 'Volzet' : 'Gesloten'}</h3>
-                <p>{closedMsg}</p>
-              </div>
-            ) : (
-              <form className="vr-form" onSubmit={submit} noValidate={false}>
-                <div className="eyebrow" style={{color:'var(--ink)', marginBottom:18}}>// Vul in</div>
-
-                {form.fields.map(f => <FormField key={f.name} f={f}
-                  value={values[f.name]} onChange={v => setVal(f.name, v)}
-                  file={files[f.name]} onFile={file => setFiles(prev => ({ ...prev, [f.name]: file }))}/>)}
-
-                {/* Honeypot: hidden from people, bots fill it in. */}
-                <div aria-hidden="true" style={{position:'absolute', left:'-10000px', width:1, height:1, overflow:'hidden'}}>
-                  <label>Laat dit leeg<input type="text" name="_hp" tabIndex={-1} autoComplete="off" defaultValue=""/></label>
-                </div>
-
-                {TURNSTILE_SITEKEY && <div ref={tsRef} style={{marginBottom:18}}/>}
-
-                {error && <p style={{color:'#c0392b', fontSize:13, margin:'0 0 12px'}}>{error}</p>}
-                <button type="submit" className="vr-submit" disabled={submitting}>
-                  {submitting ? 'Versturen…' : <>Versturen <Ic.arrow/></>}
-                </button>
-                <p className="vr-form-foot">
-                  We gebruiken je gegevens enkel hiervoor en wissen ze na afloop.
-                </p>
-              </form>
-            )}
+            <FormBody form={form} setForm={setForm}/>
           </div>
         </div>
       </main>
@@ -310,3 +360,4 @@ function FormField({ f, value, onChange, file, onFile }) {
 }
 
 window.FormPage = FormPage;
+window.ScorpioForm = ScorpioForm;
